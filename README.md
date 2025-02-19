@@ -5,6 +5,7 @@
 - fastapi
 `cd project/backend`
 `pip install -r requirements.txt`
+`pip install uvicorn`
 
 - nextjs
 `cd project/tourism`
