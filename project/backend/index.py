@@ -14,7 +14,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Database connection
+# Database connection function
 def get_db_connection():
     try:
         conn = mysql.connector.connect(
@@ -64,13 +64,13 @@ def signup(user: User):
             (user.username, hashed_password)
         )
         conn.commit()
+        return {"message": "User signed up successfully"}
     except mysql.connector.Error as e:
-        print(f"Error: {e}")
+        print(f"Database Error: {e}")
         raise HTTPException(status_code=500, detail="Error inserting data")
     finally:
         cursor.close()
         conn.close()
-    return {"message": "User signed up successfully"}
 
 @app.post("/login")
 def login(user: User):
@@ -86,13 +86,13 @@ def login(user: User):
         stored_hashed_password = result[0]
 
         # Verify the password
-        if verify_password(user.password, stored_hashed_password):
-            return {"message": "Login successful"}
-        else:
+        if not verify_password(user.password, stored_hashed_password):
             raise HTTPException(status_code=401, detail="Invalid credentials")
+
+        return {"message": "Login successful"}
     except mysql.connector.Error as e:
-        print(f"Error: {e}")
-        raise HTTPException(status_code=500, detail="Database error")
+        print(f"Database Error: {e}")
+        raise HTTPException(status_code=500, detail="Error fetching data")
     finally:
         cursor.close()
         conn.close()
