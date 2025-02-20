@@ -1,6 +1,7 @@
-from fastapi import FastAPI, HTTPException, Depends
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import mysql.connector
+import bcrypt
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
@@ -32,6 +33,16 @@ def get_db_connection():
 class User(BaseModel):
     username: str
     password: str
+
+# Function to hash passwords
+def hash_password(password: str) -> str:
+    salt = bcrypt.gensalt()
+    return bcrypt.hashpw(password.encode('utf-8'), salt).decode('utf-8')
+
+# Function to verify passwords
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    return bcrypt.checkpw(plain_password.encode('utf-8'), hashed_password.encode('utf-8'))
+
 @app.post("/signup")
 def signup(user: User):
     conn = get_db_connection()
@@ -44,10 +55,13 @@ def signup(user: User):
         if existing_user:
             raise HTTPException(status_code=400, detail="Username already exists")
 
-        # Insert new user if username doesn't exist
+        # Hash the password before storing
+        hashed_password = hash_password(user.password)
+
+        # Insert new user with hashed password
         cursor.execute(
             "INSERT INTO users (username, password) VALUES (%s, %s)",
-            (user.username, user.password)
+            (user.username, hashed_password)
         )
         conn.commit()
     except mysql.connector.Error as e:
@@ -63,12 +77,16 @@ def login(user: User):
     conn = get_db_connection()
     cursor = conn.cursor()
     try:
-        cursor.execute(
-            "SELECT * FROM users WHERE username = %s AND password = %s",
-            (user.username, user.password)
-        )
+        cursor.execute("SELECT password FROM users WHERE username = %s", (user.username,))
         result = cursor.fetchone()
-        if result:
+
+        if not result:
+            raise HTTPException(status_code=401, detail="Invalid credentials")
+
+        stored_hashed_password = result[0]
+
+        # Verify the password
+        if verify_password(user.password, stored_hashed_password):
             return {"message": "Login successful"}
         else:
             raise HTTPException(status_code=401, detail="Invalid credentials")
@@ -79,13 +97,6 @@ def login(user: User):
         cursor.close()
         conn.close()
 
-@app.get("/")
-def read_root():
-    return {"message": "Welcome to the Tourism API"}
-
-@app.get("/items/{item_id}")
-def read_item(item_id: int, q: str = None):
-    return {"item_id": item_id, "q": q}
 
 if __name__ == "__main__":
     import uvicorn

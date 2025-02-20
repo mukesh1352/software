@@ -1,12 +1,25 @@
 "use client";
 import { useState } from "react";
-import Image from "next/image";
+import { useRouter } from "next/navigation"; // Import useRouter
 
 export default function Signup() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const router = useRouter(); // Initialize router
+
+  const validatePassword = (password: string) => {
+    const minLength = 8;
+    const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    if (password.length < minLength) {
+      return "Password must be at least 8 characters long.";
+    }
+    if (!regex.test(password)) {
+      return "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character.";
+    }
+    return "";
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -14,6 +27,12 @@ export default function Signup() {
 
     if (!username || !password) {
       setError("Both fields are required.");
+      return;
+    }
+
+    const passwordError = validatePassword(password);
+    if (passwordError) {
+      setError(passwordError);
       return;
     }
 
@@ -33,9 +52,11 @@ export default function Signup() {
         throw new Error(data.message || "Signup failed. Try again.");
       }
 
-      alert("Signup successful!");
       setUsername("");
       setPassword("");
+
+      // Redirect to login page
+      router.push("/login");
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -46,7 +67,7 @@ export default function Signup() {
   return (
     <div
       className="flex min-h-screen items-center justify-center bg-gray-100 bg-cover bg-center bg-no-repeat"
-      style={{ backgroundImage: "url('/4873.jpg')" }} // ✅ Set the background image
+      style={{ backgroundImage: "url('/4873.jpg')" }}
     >
       <div className="w-full max-w-md p-8 space-y-6 bg-white bg-opacity-90 shadow-lg rounded-lg">
         <h2 className="text-2xl font-bold text-center text-gray-800">
@@ -86,6 +107,9 @@ export default function Signup() {
               placeholder="Enter your password"
               required
             />
+            <p className="text-xs text-gray-500 mt-1">
+              Must be at least 8 characters, include uppercase, lowercase, a number, and a special character.
+            </p>
           </div>
 
           <button
