@@ -33,7 +33,6 @@ export default function Login() {
       const data = await response.json();
       if (!response.ok) throw new Error(data.detail || "Login failed");
 
-      alert("Login successful!");
       router.push("/");
     } catch (err: any) {
       setError(err.message);
@@ -58,7 +57,6 @@ export default function Login() {
         body: JSON.stringify({ uid: user.uid, email: user.email }),
       });
 
-      alert(`Signed in as ${user.email}`);
       router.push("/");
     } catch (err: any) {
       setError(err.message);
@@ -130,6 +128,10 @@ export default function Login() {
         <p className="text-sm text-center text-white mt-4">
           Don't have an account?{" "}
           <a href="/signup" className="text-blue-300 hover:underline">Sign up here</a>
+        </p>
+
+        <p className="text-sm text-center text-white mt-4">
+          <a href="/forgot" className="text-blue-300 hover:underline">Forgot Password?</a>
         </p>
       </div>
     </div>

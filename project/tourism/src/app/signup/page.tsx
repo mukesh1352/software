@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { auth, googleProvider } from "../firebaseConfig";
 import { signInWithPopup } from "firebase/auth";
 import Image from "next/image";
-
+import ForgotPassword from "../forgot/page";
 export default function Signup() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -35,7 +35,6 @@ export default function Signup() {
 
       setUsername("");
       setPassword("");
-      alert("Signup successful! Redirecting to login.");
       router.push("/login");
     } catch (err: any) {
       setError(err.message);
@@ -60,7 +59,6 @@ export default function Signup() {
         body: JSON.stringify({ uid: user.uid, email: user.email }),
       });
 
-      alert(`Signed in as ${user.email}`);
       router.push("/");
     } catch (err: any) {
       setError(err.message);
@@ -70,7 +68,7 @@ export default function Signup() {
   };
 
   return (
-    <div 
+    <div
       className="flex min-h-screen items-center justify-center bg-gradient-to-r from-blue-500 to-purple-600"
       style={{ backgroundImage: 'url(/4873.jpg)', backgroundSize: 'cover', backgroundPosition: 'center' }}
     >
@@ -132,6 +130,10 @@ export default function Signup() {
         <p className="text-sm text-center text-white mt-4">
           Already have an account?{" "}
           <a href="/login" className="text-blue-300 hover:underline">Login here</a>
+        </p>
+
+        <p className="text-sm text-center text-white mt-4">
+          <a href="/forgot" className="text-blue-300 hover:underline">Forgot Password?</a>
         </p>
       </div>
     </div>
