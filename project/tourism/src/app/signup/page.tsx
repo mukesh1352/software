@@ -9,30 +9,12 @@ export default function Signup() {
   const [loading, setLoading] = useState(false);
   const router = useRouter(); // Initialize router
 
-  const validatePassword = (password: string) => {
-    const minLength = 8;
-    const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-    if (password.length < minLength) {
-      return "Password must be at least 8 characters long.";
-    }
-    if (!regex.test(password)) {
-      return "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character.";
-    }
-    return "";
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
     if (!username || !password) {
       setError("Both fields are required.");
-      return;
-    }
-
-    const passwordError = validatePassword(password);
-    if (passwordError) {
-      setError(passwordError);
       return;
     }
 
@@ -107,9 +89,6 @@ export default function Signup() {
               placeholder="Enter your password"
               required
             />
-            <p className="text-xs text-gray-500 mt-1">
-              Must be at least 8 characters, include uppercase, lowercase, a number, and a special character.
-            </p>
           </div>
 
           <button
