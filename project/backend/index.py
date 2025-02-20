@@ -97,6 +97,33 @@ def login(user: User):
         cursor.close()
         conn.close()
 
+@app.post("/forgot")
+def forgot_password(user: User):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    try:
+        # Check if the username exists
+        cursor.execute("SELECT password FROM users WHERE username = %s", (user.username,))
+        result = cursor.fetchone()
+
+        if not result:
+            raise HTTPException(status_code=404, detail="User not found")
+
+        # Update the password after the user submits a new one
+        hashed_password = hash_password(user.password)
+        cursor.execute(
+            "UPDATE users SET password = %s WHERE username = %s",
+            (hashed_password, user.username)
+        )
+        conn.commit()
+
+        return {"message": "Password reset successful"}
+    except mysql.connector.Error as e:
+        print(f"Database Error: {e}")
+        raise HTTPException(status_code=500, detail="Database connection error")
+    finally:
+        cursor.close()
+        conn.close()
 
 if __name__ == "__main__":
     import uvicorn
