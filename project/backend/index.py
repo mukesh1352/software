@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
+# CORS Middleware to allow requests from the frontend
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # Replace "*" with your frontend URL in production
@@ -26,7 +27,7 @@ def get_db_connection():
         )
         return conn
     except mysql.connector.Error as e:
-        print(f"Error connecting to MariaDB: {e}")
+        print(f"Error connecting to MySQL: {e}")
         raise HTTPException(status_code=500, detail="Database connection error")
 
 # Pydantic model for user authentication
@@ -43,6 +44,7 @@ def hash_password(password: str) -> str:
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     return bcrypt.checkpw(plain_password.encode('utf-8'), hashed_password.encode('utf-8'))
 
+# Sign-up endpoint to register a new user
 @app.post("/signup")
 def signup(user: User):
     conn = get_db_connection()
@@ -72,6 +74,7 @@ def signup(user: User):
         cursor.close()
         conn.close()
 
+# Login endpoint to authenticate the user
 @app.post("/login")
 def login(user: User):
     conn = get_db_connection()
@@ -97,6 +100,7 @@ def login(user: User):
         cursor.close()
         conn.close()
 
+# Forgot password endpoint to reset the user's password
 @app.post("/forgot")
 def forgot_password(user: User):
     conn = get_db_connection()
@@ -125,6 +129,7 @@ def forgot_password(user: User):
         cursor.close()
         conn.close()
 
+# Main entry point for running the application
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
