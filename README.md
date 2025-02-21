@@ -6,6 +6,7 @@
 `cd project/backend`
 `pip install -r requirements.txt`
 `pip install uvicorn`
+`pip install bycrypt`
 
 - nextjs
 `cd project/tourism`
