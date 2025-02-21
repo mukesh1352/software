@@ -1,136 +1,185 @@
 "use client";
+import { useState } from "react";
 
-import { useState, useEffect } from "react";
-import Image from "next/image";
+const AMADEUS_BASE_URL = "https://test.api.amadeus.com/v1";
+const CLIENT_ID = "CSlL4pOCTAadgLQ9p5jvNlIGbIh8qA71";
+const CLIENT_SECRET = "MipI15ogIxj4XwUG";
 
-const CLIENT_ID = "CSlL4pOCTAadgLQ9p5jvNlIGbIh8qA71"; // Replace with your actual API key
-const CLIENT_SECRET = "MipI15ogIxj4XwUG"; // Replace with your actual API secret
-const AUTH_URL = "https://test.api.amadeus.com/v1/security/oauth2/token";
-const API_URL = "https://test.api.amadeus.com/v3/shopping/hotel-offers";
+export default function HotelBooking() {
+  const [city, setCity] = useState("");
+  const [hotels, setHotels] = useState<Hotel[]>([]);
+  const [offers, setOffers] = useState<{ [key: string]: Offer[] }>({});
+  const [privileges, setPrivileges] = useState<{ [key: string]: string[] }>({});
+  const [loading, setLoading] = useState(false);
+  let accessToken: string | null = null;
 
-async function getAccessToken() {
-  try {
-    const response = await fetch(AUTH_URL, {
+  const getAccessToken = async () => {
+    if (accessToken) return accessToken;
+    const response = await fetch(`${AMADEUS_BASE_URL}/security/oauth2/token`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: new URLSearchParams({
         grant_type: "client_credentials",
         client_id: CLIENT_ID,
         client_secret: CLIENT_SECRET,
       }),
     });
-
     const data = await response.json();
-    if (data.access_token) {
-      return data.access_token;
-    } else {
-      console.error("Failed to get access token:", data);
-      return null;
-    }
-  } catch (error) {
-    console.error("Error fetching access token:", error);
-    return null;
+    accessToken = data.access_token;
+    return accessToken;
+  };
+
+  interface IATACodeResponse {
+    data: { iataCode: string }[];
   }
-}
 
-export default function HotelBooking() {
-  const [hotels, setHotels] = useState<any[]>([]);
-  const [selectedHotel, setSelectedHotel] = useState(null);
-  const [checkIn, setCheckIn] = useState("");
-  const [checkOut, setCheckOut] = useState("");
-  const [guests, setGuests] = useState(1);
-  const [bookingMessage, setBookingMessage] = useState("");
+  const getIATACode = async (city: string): Promise<string | null> => {
+    const token = await getAccessToken();
+    const response = await fetch(`${AMADEUS_BASE_URL}/reference-data/locations?subType=CITY&keyword=${city}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const data: IATACodeResponse = await response.json();
+    return data.data?.[0]?.iataCode || null;
+  };
 
-  useEffect(() => {
-    async function fetchHotels() {
-      const token = await getAccessToken();
-      if (!token) return;
-
-      try {
-        const response = await fetch(API_URL, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        const data = await response.json();
-        setHotels(data.data || []);
-      } catch (error) {
-        console.error("Error fetching hotels:", error);
-      }
-    }
-
-    fetchHotels();
-  }, []);
-
-  const handleBooking = () => {
-    if (!selectedHotel || !checkIn || !checkOut) {
-      setBookingMessage("Please fill all details.");
+  const searchHotels = async () => {
+    setLoading(true);
+    setHotels([]);
+    setOffers({});
+    setPrivileges({});
+    
+    const cityCode = await getIATACode(city);
+    if (!cityCode) {
+      alert("City not found!");
+      setLoading(false);
       return;
     }
-    const hotel = hotels.find((h) => h.hotel.id === selectedHotel);
-    setBookingMessage(
-      `Booking confirmed for ${hotel?.hotel.name} from ${checkIn} to ${checkOut} for ${guests} guests.`
-    );
+
+    const token = await getAccessToken();
+    const response = await fetch(`${AMADEUS_BASE_URL}/reference-data/locations/hotels/by-city?cityCode=${cityCode}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const data = await response.json();
+    
+    const hotelsWithImages: Hotel[] = data.data.map((hotel: Hotel) => ({
+      ...hotel,
+      imageUrl: `https://source.unsplash.com/400x300/?hotel,${hotel.name}`,
+    }));
+    
+    setHotels(hotelsWithImages);
+    setLoading(false);
+  };
+
+  const getHotelOffers = async (hotelId: string) => {
+    const token = await getAccessToken();
+    const response = await fetch(`${AMADEUS_BASE_URL}/shopping/hotel-offers?hotelIds=${hotelId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const data = await response.json();
+    
+    setOffers((prevOffers) => ({
+      ...prevOffers,
+      [hotelId]: data.data || [],
+    }));
+  };
+
+  interface Hotel {
+    hotelId: string;
+    name: string;
+    imageUrl?: string;
+  }
+
+  interface Offer {
+    id: string;
+    price: {
+      total: string;
+      currency: string;
+    };
+  }
+
+  interface PrivilegesResponse {
+    privileges: string[];
+  }
+
+  const getPrivileges = async (hotelId: string) => {
+    const token = await getAccessToken();
+    const response = await fetch(`${AMADEUS_BASE_URL}/accommodations/details?hotelId=${hotelId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const data: PrivilegesResponse = await response.json();
+    
+    setPrivileges((prev) => ({
+      ...prev,
+      [hotelId]: data.privileges || [],
+    }));
   };
 
   return (
-    <div className="max-w-3xl mx-auto p-6 bg-white shadow-lg rounded-lg">
-      <h2 className="text-3xl font-bold mb-6 text-center">Recommended Hotels</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-        {hotels.map((hotel) => (
-          <div
-            key={hotel.hotel.id}
-            className={`p-4 border rounded-lg shadow-md cursor-pointer transition transform hover:scale-105 ${
-              selectedHotel === hotel.hotel.id ? "border-blue-500" : "border-gray-300"
-            }`}
-            onClick={() => setSelectedHotel(hotel.hotel.id)}
-          >
-            <Image
-              src={hotel.hotel.media?.[0]?.uri || "/placeholder.jpg"}
-              alt={hotel.hotel.name}
-              width={300}
-              height={200}
-              className="rounded-lg w-full h-40 object-cover"
-            />
-            <h3 className="text-xl font-semibold mt-2">{hotel.hotel.name}</h3>
-            <p className="text-gray-600">{hotel.hotel.address.cityName}</p>
-            <p className="text-blue-600 font-bold">${hotel.offers[0]?.price.total}/night</p>
-          </div>
-        ))}
-      </div>
-
-      <h2 className="text-2xl font-semibold mb-4">Book Your Stay</h2>
-      <div className="flex flex-col gap-3">
+    <div className="p-8 bg-gray-900 min-h-screen text-white">
+      <h1 className="text-4xl font-bold mb-6">Hotel Search & Booking</h1>
+      <div className="flex gap-4">
         <input
-          type="date"
-          className="p-3 border rounded"
-          value={checkIn}
-          onChange={(e) => setCheckIn(e.target.value)}
+          type="text"
+          value={city}
+          onChange={(e) => setCity(e.target.value)}
+          placeholder="Enter City"
+          className="border p-3 rounded bg-gray-800 text-white"
         />
-        <input
-          type="date"
-          className="p-3 border rounded"
-          value={checkOut}
-          onChange={(e) => setCheckOut(e.target.value)}
-        />
-        <input
-          type="number"
-          className="p-3 border rounded"
-          min="1"
-          value={guests}
-          onChange={(e) => setGuests(Number(e.target.value))}
-        />
-        <button
-          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-          onClick={handleBooking}
-        >
-          Book Now
+        <button onClick={searchHotels} className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+          Search Hotels
         </button>
       </div>
-      {bookingMessage && <p className="mt-4 text-green-600 font-semibold">{bookingMessage}</p>}
+      
+      {loading && <p className="mt-4">Loading...</p>}
+
+      <div className="mt-6">
+        {hotels.length > 0 && (
+          <>
+            <h2 className="text-2xl font-semibold mb-3">Available Hotels</h2>
+            {hotels.map((hotel) => (
+              <div key={hotel.hotelId} className="border p-4 mb-4 rounded bg-gray-800 flex">
+                <img src={hotel.imageUrl} alt={hotel.name} className="w-40 h-32 rounded mr-4"/>
+                <div>
+                  <p className="font-semibold text-lg">{hotel.name}</p>
+                  <div className="flex gap-3 mt-2">
+                    <button
+                      onClick={() => getHotelOffers(hotel.hotelId)}
+                      className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600"
+                    >
+                      View Offers
+                    </button>
+                    <button
+                      onClick={() => getPrivileges(hotel.hotelId)}
+                      className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600"
+                    >
+                      Check Privileges
+                    </button>
+                  </div>
+                  {offers[hotel.hotelId] && offers[hotel.hotelId].length > 0 && (
+                    <div className="mt-2 border-t pt-2">
+                      {offers[hotel.hotelId].map((offer) => (
+                        <p key={offer.id}>
+                          💰 Price: <strong>{offer.price.total} {offer.price.currency}</strong>
+                        </p>
+                      ))}
+                    </div>
+                  )}
+                  {privileges[hotel.hotelId] && privileges[hotel.hotelId].length > 0 && (
+                    <div className="mt-2 border-t pt-2">
+                      <h3 className="font-semibold">Privileges:</h3>
+                      <ul>
+                        {privileges[hotel.hotelId].map((priv, index) => (
+                          <li key={index}>✅ {priv}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </>
+        )}
+      </div>
     </div>
   );
 }
