@@ -1,4 +1,4 @@
-# Software Engineering
+# Tourism Recommendation Application
 ## Tourism Recommendation Application
 
 ### backend
