@@ -2,7 +2,7 @@ import { FaSignInAlt } from 'react-icons/fa';
 
 export const Header = () => {
     return (
-        <div className="bg-gradient-to-r from-indigo-600 via-purple-500 to-pink-500 text-white py-6 px-8 flex justify-between items-center shadow-2xl rounded-b-lg">
+        <div className="bg-gradient-to-r from-indigo-600 via-purple-500 to-pink-500 text-white py-6 px-8 flex justify-between items-center shadow-2xl ">
             <div className="text-4xl font-extrabold tracking-tight">
                 TravelExplorer
             </div>
