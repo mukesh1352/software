@@ -7,6 +7,10 @@ The Tourism Recommendation Application is designed to provide personalized trave
 ### backend
 - fastapi
 `cd project/backend`
+`python -m  venv venv`
+-to enter into the virtual environemnt:
+`source venv/bin/activate`
+-then we can install the python requirements that are required:
 `pip install -r requirements.txt`
 `pip install uvicorn`
 `pip install bycrypt`
