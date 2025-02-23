@@ -4,6 +4,14 @@
 **ABOUT THE PROJECT**
 The Tourism Recommendation Application is designed to provide personalized travel recommendations, assist with ticket bookings, and serve as a comprehensive travel planner.
 
+### Database
+-To create the database, we have to do the following :
+`CREATE TABLE users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(255) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL
+);`
+
 ### backend
 - fastapi
 `cd project/backend`
