@@ -3,6 +3,7 @@
 import Header from "./components/header";
 import Heading from "./components/mainheading";
 import Slider from "./components/slider";
+import Footer from "./components/footer";
 
 export default function Home() {
   return (
@@ -11,7 +12,7 @@ export default function Home() {
       <Header />
 
       {/* Main Content */}
-      <main className="flex flex-col items-center text-center flex-grow">
+      <main className="flex-grow flex flex-col items-center text-center">
         {/* Main Heading Component */}
         <Heading />
 
@@ -30,6 +31,9 @@ export default function Home() {
         {/* Slider Component */}
         <Slider />
       </main>
+
+      {/* Footer Section */}
+      <Footer />
     </div>
   );
 }
