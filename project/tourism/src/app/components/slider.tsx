@@ -6,7 +6,7 @@ const images = [
   "/123.jpg",
   "/1.jpg",
   "/1.png",
-  "/4873.jpg",
+  "sdyney.jpg",
   "/collosum.jpg",
   "/gate.jpg",
   "/kerala.jpg",
