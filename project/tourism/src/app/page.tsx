@@ -1,7 +1,7 @@
 'use client';
 
 import React from "react";
-import Link from "next/link"; // Import Link for navigation
+import Link from "next/link"; 
 import Header from "./components/header";
 import Heading from "./components/mainheading";
 import Slider from "./components/slider";
