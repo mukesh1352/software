@@ -1,5 +1,4 @@
 'use client';
-
 import Header from "./components/header";
 import Heading from "./components/mainheading";
 import Slider from "./components/slider";
@@ -11,9 +10,7 @@ export default function Home() {
       {/* Header Section */}
       <Header />
 
-      {/* Main Content */}
       <main className="flex-grow flex flex-col items-center text-center">
-        {/* Main Heading Component */}
         <Heading />
 
         {/* Tourism Section */}
@@ -28,11 +25,9 @@ export default function Home() {
           </p>
         </section>
 
-        {/* Slider Component */}
         <Slider />
       </main>
 
-      {/* Footer Section */}
       <Footer />
     </div>
   );
