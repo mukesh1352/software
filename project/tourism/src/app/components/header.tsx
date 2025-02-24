@@ -3,7 +3,7 @@ import Link from "next/link";
 
 export const Header = () => {
     return (
-        <header className="fixed top-0 left-0 w-full z-50 backdrop-blur-lg bg-white/10 shadow-lg border-b border-white/10">
+        <header className="w-full absolute top-0 left-0 z-50 bg-white/10 backdrop-blur-md border-b border-white/10">
             <div className="max-w-7xl mx-auto flex justify-between items-center py-4 px-6 lg:px-12">
                 <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-white drop-shadow-lg">
                     TravelSage
