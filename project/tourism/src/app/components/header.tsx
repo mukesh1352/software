@@ -1,18 +1,34 @@
-import { FaSignInAlt } from 'react-icons/fa';
+import { FaSignInAlt } from "react-icons/fa";
+import Link from "next/link";
 
 export const Header = () => {
     return (
-        <div className="bg-gradient-to-r from-indigo-600 via-purple-500 to-pink-500 text-white py-6 px-8 flex justify-between items-center shadow-2xl ">
-            <div className="text-4xl font-extrabold tracking-tight">
-                TravelExplorer
-            </div>
-            <div className="flex items-center space-x-6">
-                <button className="bg-yellow-500 text-white py-2 px-6 rounded-full text-lg font-semibold hover:bg-yellow-600 transition-all duration-300 flex items-center space-x-2">
-                    <FaSignInAlt className="text-lg" />
+        <header className="fixed top-0 left-0 w-full z-50 backdrop-blur-lg bg-white/10 shadow-lg border-b border-white/10">
+            <div className="max-w-7xl mx-auto flex justify-between items-center py-4 px-6 lg:px-12">
+                <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-white drop-shadow-lg">
+                    TravelSage
+                </h1>
+
+                {/* Navigation Links */}
+                <nav className="hidden md:flex space-x-8 text-lg font-medium text-white">
+                    <Link href="/tourism" className="hover:text-yellow-400 transition-all duration-300">
+                        Tourism
+                    </Link>
+                    <Link href="/hotels" className="hover:text-yellow-400 transition-all duration-300">
+                        Hotels
+                    </Link>
+                    <Link href="/travels" className="hover:text-yellow-400 transition-all duration-300">
+                        Travels
+                    </Link>
+                </nav>
+
+                {/* Sign In Button */}
+                <button className="flex items-center space-x-2 bg-yellow-500 text-white py-2 px-6 rounded-full text-lg font-semibold shadow-md transition-all duration-300 hover:bg-yellow-600 hover:shadow-lg hover:scale-105">
+                    <FaSignInAlt className="text-xl" />
                     <span>Sign In</span>
                 </button>
             </div>
-        </div>
+        </header>
     );
 };
 
