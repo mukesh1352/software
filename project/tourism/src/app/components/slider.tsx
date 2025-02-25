@@ -15,6 +15,17 @@ const images = [
   "/taj.jpg",
 ];
 
+// const images = [
+//   "https://981tvm9u6x.ufs.sh/f/gW8fFvPNxHJ4VJvloAdFhuH25Swg0aMekQyGxnKJCRUF3B96",
+//   "https://981tvm9u6x.ufs.sh/f/gW8fFvPNxHJ4qh1i6cpLlZ64EJHNRjkvW7UQnosdKgGxze0C",
+//   "https://981tvm9u6x.ufs.sh/f/gW8fFvPNxHJ4wYCNVaq34XDkW0FHn2Ibd9UlyP8ZKQ6sargG",
+//   "https://981tvm9u6x.ufs.sh/f/gW8fFvPNxHJ4Ouj1fUviSrmxhUwLPoJuGqXgzRyctbnj1MWT",
+//   "https://981tvm9u6x.ufs.sh/f/gW8fFvPNxHJ4VJGGBXNFhuH25Swg0aMekQyGxnKJCRUF3B96",
+//   "https://981tvm9u6x.ufs.sh/f/gW8fFvPNxHJ4j2WCItfFucZGBK9qaMhAXk8UPz5f47Hsp620",
+//   "https://981tvm9u6x.ufs.sh/f/gW8fFvPNxHJ4FczoTL78qAoGIhisRfV24vPTZ0LWjCF1EMlm",
+//   "https://981tvm9u6x.ufs.sh/f/gW8fFvPNxHJ4nUjioK8LdPZtk8rKSvzROaB9IMEs5TVnjoJg",
+// ];
+
 export default function ImageGallery() {
   const containerRef = useRef<HTMLDivElement>(null);
 
