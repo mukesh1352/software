@@ -1,14 +1,12 @@
 "use client"; // Ensure this is at the top
 
 import React, { useState } from "react";
-import { useRouter } from "next/navigation";
 import { auth } from "../firebaseConfig";
 import { sendPasswordResetEmail } from "firebase/auth";
 
 export default function Emailsend() {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
-  const router = useRouter();
 
   const handlePasswordReset = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -16,8 +14,12 @@ export default function Emailsend() {
     try {
       await sendPasswordResetEmail(auth, email);
       setMessage("✅ Password reset email sent! Check your inbox.");
-    } catch (error: any) {
-      setMessage(` ${error.message || "Error sending password reset email."}`);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        setMessage(error.message);
+      } else {
+        setMessage("Error sending password reset email.");
+      }
     }
   };
 
