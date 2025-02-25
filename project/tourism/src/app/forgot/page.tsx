@@ -1,8 +1,9 @@
-"use client";
+"use client"; // Ensure this is at the top
+
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 
-const ForgotPassword = () => {
+export default function ForgotPassword() { // ✅ Default Export
   const [username, setUsername] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [message, setMessage] = useState("");
@@ -14,17 +15,16 @@ const ForgotPassword = () => {
     try {
       const response = await fetch("http://localhost:8000/forgot", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password: newPassword }),
       });
+
+      const data = await response.json();
 
       if (response.ok) {
         router.push("/login"); // Redirect on success
       } else {
-        const data = await response.json();
-        setMessage(data.error === "Invalid username" ? "The username is incorrect." : "Error resetting password.");
+        setMessage(data.detail || "Error resetting password.");
       }
     } catch {
       setMessage("Network error");
@@ -69,6 +69,4 @@ const ForgotPassword = () => {
       </div>
     </div>
   );
-};
-
-export default ForgotPassword;
+}
