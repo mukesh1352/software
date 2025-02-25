@@ -1,6 +1,6 @@
 "use client";
-import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 
 const ForgotPassword = () => {
   const [username, setUsername] = useState("");
@@ -21,17 +21,12 @@ const ForgotPassword = () => {
       });
 
       if (response.ok) {
-        // Redirect to the login page after success
-        router.push("/login"); // Adjust the path if needed
+        router.push("/login"); // Redirect on success
       } else {
         const data = await response.json();
-        if (data.error && data.error === "Invalid username") {
-          setMessage("The username is incorrect.");
-        } else {
-          setMessage("Error resetting password.");
-        }
+        setMessage(data.error === "Invalid username" ? "The username is incorrect." : "Error resetting password.");
       }
-    } catch (error) {
+    } catch {
       setMessage("Network error");
     }
   };

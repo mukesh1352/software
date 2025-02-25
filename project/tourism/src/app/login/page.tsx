@@ -1,4 +1,5 @@
 "use client";
+
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { auth, googleProvider } from "../firebaseConfig";
@@ -24,18 +25,22 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const response = await fetch("http://localhost:8000/login", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),
       });
 
       const data = await response.json();
-      if (!response.ok) throw new Error(data.detail || "Login failed");
+      if (!response.ok) throw new Error(data.detail || "Invalid credentials");
 
       router.push("/");
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("An unexpected error occurred.");
+      }
     } finally {
       setLoading(false);
     }
@@ -50,16 +55,19 @@ export default function Login() {
       const result = await signInWithPopup(auth, googleProvider);
       const user = result.user;
 
-      // Send Google user details to your backend if needed
-      await fetch("http://localhost:8000/google-auth", {
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/google-auth`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ uid: user.uid, email: user.email }),
       });
 
       router.push("/");
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("An error occurred with Google Sign-In.");
+      }
     } finally {
       setLoading(false);
     }
@@ -70,9 +78,9 @@ export default function Login() {
       className="flex min-h-screen items-center justify-center bg-gradient-to-r from-blue-500 to-purple-600"
       style={{ backgroundImage: 'url(/4873.jpg)', backgroundSize: 'cover', backgroundPosition: 'center' }}
     >
-      <div className="absolute inset-0 bg-black opacity-50"></div> {/* Gradient overlay */}
+      <div className="absolute inset-0 bg-black opacity-50"></div> {/* Overlay */}
       <div className="w-full max-w-md p-8 space-y-6 bg-white bg-opacity-10 backdrop-blur-md shadow-2xl rounded-2xl relative z-10">
-        <h2 className="text-4xl font-extrabold text-center text-white leading-tight">
+        <h2 className="text-4xl font-extrabold text-center text-white">
           Login to Your Account
         </h2>
 
@@ -120,13 +128,13 @@ export default function Login() {
             disabled={loading}
             className="flex items-center justify-center space-x-2 px-4 py-2 border rounded-lg text-white bg-red-500 shadow-md hover:bg-red-600 hover:scale-105 transition"
           >
-            <img src="/google-icon.svg" alt="Google" className="w-5 h-5" />
+            <Image src="/google-icon.svg" alt="Google" width={20} height={20} />
             <span>Login with Google</span>
           </button>
         </div>
 
         <p className="text-sm text-center text-white mt-4">
-          Don't have an account?{" "}
+          Don&apos;t have an account?{" "}
           <a href="/signup" className="text-blue-300 hover:underline">Sign up here</a>
         </p>
 

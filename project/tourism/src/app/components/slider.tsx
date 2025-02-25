@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import Image from "next/image";
 
 const images = [
   "/123.jpg",
@@ -42,12 +43,13 @@ export default function ImageGallery() {
         className="flex space-x-6 max-w-full overflow-x-auto hide-scrollbar"
         style={{ scrollBehavior: "auto", whiteSpace: "nowrap" }}
       >
-        {[...images, ...images].map((img, index) => (
-          <div key={index} className="overflow-hidden rounded-lg shadow-lg flex-shrink-0">
-            <img
-              src={img}
+        {[...images, ...images].map((imgSrc, index) => (
+          <div key={index} className="relative w-80 h-80 overflow-hidden rounded-lg shadow-lg flex-shrink-0">
+            <Image
+              src={imgSrc}
               alt={`Image ${index + 1}`}
-              className="w-80 h-80 object-cover transition-transform duration-100 hover:scale-105"
+              fill
+              className="object-cover transition-transform duration-100 hover:scale-105"
             />
           </div>
         ))}
