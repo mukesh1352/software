@@ -1,135 +1,115 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 import mysql.connector
 import bcrypt
 from fastapi.middleware.cors import CORSMiddleware
+from mysql.connector import pooling
 
 app = FastAPI()
 
-# CORS Middleware to allow requests from the frontend
+# Allow frontend requests (replace "*" with actual frontend URL)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Replace "*" with your frontend URL in production
+    allow_origins=["http://localhost:3000"],  # Adjust for production
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Database connection function
+# Database connection pool
+db_config = {
+    "user": "mukesh",
+    "password": "mukesh123",
+    "host": "localhost",
+    "port": 3306,
+    "database": "tourism",
+}
+connection_pool = pooling.MySQLConnectionPool(pool_name="mypool", pool_size=10, **db_config)
+
 def get_db_connection():
     try:
-        conn = mysql.connector.connect(
-            user="mukesh",
-            password="mukesh123",
-            host="localhost",
-            port=3306,
-            database="tourism"
-        )
-        return conn
+        return connection_pool.get_connection()
     except mysql.connector.Error as e:
-        print(f"Error connecting to MySQL: {e}")
-        raise HTTPException(status_code=500, detail="Database connection error")
+        print(f"Database connection error: {e}")
+        return None
 
-# Pydantic model for user authentication
+# User model
 class User(BaseModel):
     username: str
     password: str
 
-# Function to hash passwords
 def hash_password(password: str) -> str:
     salt = bcrypt.gensalt()
-    return bcrypt.hashpw(password.encode('utf-8'), salt).decode('utf-8')
+    return bcrypt.hashpw(password.encode("utf-8"), salt).decode("utf-8")
 
-# Function to verify passwords
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    return bcrypt.checkpw(plain_password.encode('utf-8'), hashed_password.encode('utf-8'))
+    return bcrypt.checkpw(plain_password.encode("utf-8"), hashed_password.encode("utf-8"))
 
-# Sign-up endpoint to register a new user
 @app.post("/signup")
 def signup(user: User):
     conn = get_db_connection()
+    if conn is None:
+        return JSONResponse(status_code=500, content={"detail": "Database connection failed"})
+
     cursor = conn.cursor()
     try:
-        # Check if the username already exists
         cursor.execute("SELECT username FROM users WHERE username = %s", (user.username,))
-        existing_user = cursor.fetchone()
-
-        if existing_user:
+        if cursor.fetchone():
             raise HTTPException(status_code=400, detail="Username already exists")
 
-        # Hash the password before storing
         hashed_password = hash_password(user.password)
-
-        # Insert new user with hashed password
-        cursor.execute(
-            "INSERT INTO users (username, password) VALUES (%s, %s)",
-            (user.username, hashed_password)
-        )
+        cursor.execute("INSERT INTO users (username, password) VALUES (%s, %s)", (user.username, hashed_password))
         conn.commit()
         return {"message": "User signed up successfully"}
     except mysql.connector.Error as e:
-        print(f"Database Error: {e}")
-        raise HTTPException(status_code=500, detail="Error inserting data")
+        return JSONResponse(status_code=500, content={"detail": f"Database Error: {str(e)}"})
     finally:
         cursor.close()
         conn.close()
 
-# Login endpoint to authenticate the user
 @app.post("/login")
 def login(user: User):
     conn = get_db_connection()
+    if conn is None:
+        return JSONResponse(status_code=500, content={"detail": "Database connection failed"})
+
     cursor = conn.cursor()
     try:
         cursor.execute("SELECT password FROM users WHERE username = %s", (user.username,))
         result = cursor.fetchone()
-
-        if not result:
-            raise HTTPException(status_code=401, detail="Invalid credentials")
-
-        stored_hashed_password = result[0]
-
-        # Verify the password
-        if not verify_password(user.password, stored_hashed_password):
+        if not result or not verify_password(user.password, result[0]):
             raise HTTPException(status_code=401, detail="Invalid credentials")
 
         return {"message": "Login successful"}
     except mysql.connector.Error as e:
-        print(f"Database Error: {e}")
-        raise HTTPException(status_code=500, detail="Error fetching data")
+        return JSONResponse(status_code=500, content={"detail": f"Database Error: {str(e)}"})
     finally:
         cursor.close()
         conn.close()
 
-# Forgot password endpoint to reset the user's password
 @app.post("/forgot")
 def forgot_password(user: User):
     conn = get_db_connection()
+    if conn is None:
+        return JSONResponse(status_code=500, content={"detail": "Database connection failed"})
+
     cursor = conn.cursor()
     try:
-        # Check if the username exists
-        cursor.execute("SELECT password FROM users WHERE username = %s", (user.username,))
-        result = cursor.fetchone()
-
-        if not result:
+        cursor.execute("SELECT username FROM users WHERE username = %s", (user.username,))
+        if not cursor.fetchone():
             raise HTTPException(status_code=404, detail="User not found")
 
-        # Update the password after the user submits a new one
         hashed_password = hash_password(user.password)
-        cursor.execute(
-            "UPDATE users SET password = %s WHERE username = %s",
-            (hashed_password, user.username)
-        )
+        cursor.execute("UPDATE users SET password = %s WHERE username = %s", (hashed_password, user.username))
         conn.commit()
-
         return {"message": "Password reset successful"}
     except mysql.connector.Error as e:
-        print(f"Database Error: {e}")
-        raise HTTPException(status_code=500, detail="Database connection error")
+        return JSONResponse(status_code=500, content={"detail": f"Database Error: {str(e)}"})
     finally:
         cursor.close()
         conn.close()
 
-# Main entry point for running the application
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
