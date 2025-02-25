@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { auth, googleProvider } from "../firebaseConfig";
 import { signInWithPopup } from "firebase/auth";
 import Image from "next/image";
+import Link from "next/link";
 
 export default function LoginPage() {
   const [username, setUsername] = useState("");
@@ -127,11 +128,11 @@ export default function LoginPage() {
         </div>
 
         <p className="text-sm text-center text-white mt-4">
-          Don&apos;t have an account? <a href="/signup" className="text-blue-300 hover:underline">Sign up here</a>
+          Don&apos;t have an account? <Link href="/signup" className="text-blue-300 hover:underline">Sign up here</Link>
         </p>
 
         <p className="text-sm text-center text-white mt-4">
-          <a href="/forgot" className="text-blue-300 hover:underline">Forgot Password?</a>
+          <Link href="/password" className="text-blue-300 hover:underline">Forgot Password?</Link>
         </p>
       </div>
     </div>
