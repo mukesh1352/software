@@ -87,7 +87,7 @@ def login(user: User):
     finally:
         cursor.close()
         conn.close()
-
+        
 @app.post("/forgot")
 def forgot_password(user: User):
     conn = get_db_connection()
@@ -96,10 +96,19 @@ def forgot_password(user: User):
 
     cursor = conn.cursor()
     try:
-        cursor.execute("SELECT username FROM users WHERE username = %s", (user.username,))
-        if not cursor.fetchone():
+        # Fetch the current password hash
+        cursor.execute("SELECT password FROM users WHERE username = %s", (user.username,))
+        result = cursor.fetchone()
+        if not result:
             raise HTTPException(status_code=404, detail="User not found")
 
+        existing_hashed_password = result[0]
+
+        # Check if the new password is the same as the old one
+        if verify_password(user.password, existing_hashed_password):
+            return JSONResponse(status_code=400, content={"detail": "The new password is the same as the old password"})
+
+        # Hash the new password and update it
         hashed_password = hash_password(user.password)
         cursor.execute("UPDATE users SET password = %s WHERE username = %s", (hashed_password, user.username))
         conn.commit()
@@ -109,6 +118,7 @@ def forgot_password(user: User):
     finally:
         cursor.close()
         conn.close()
+
 
 if __name__ == "__main__":
     import uvicorn
