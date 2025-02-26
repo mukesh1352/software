@@ -61,7 +61,7 @@ export default function ForgotPassword() { // ✅ Default Export
               type="submit"
               className="w-full bg-indigo-500 text-white p-3 rounded-md hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
             >
-              Reset Password
+              Reset  Password
             </button>
           </form>
           {message && <p className="mt-4 text-center text-sm text-red-600">{message}</p>}

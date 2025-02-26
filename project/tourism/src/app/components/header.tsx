@@ -23,7 +23,7 @@ export const Header = () => {
                 </nav>
 
                 {/* Sign In Button */}
-                <button className="flex items-center space-x-2 bg-yellow-500 text-white py-2 px-6 rounded-full text-lg font-semibold shadow-md transition-all duration-300 hover:bg-yellow-600 hover:shadow-lg hover:scale-105">
+                <button className="flex items-center space-x-2 bg-yellow-200 text-white py-2 px-6 rounded-full text-lg font-semibold shadow-md transition-all duration-300 hover:bg-yellow-600 hover:shadow-lg hover:scale-105">
                     <FaSignInAlt className="text-xl" />
                     <Link href="/signup"><span>Sign In</span></Link>
                 </button>
