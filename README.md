@@ -22,7 +22,7 @@ The Tourism Recommendation Application is designed to provide personalized trave
 `pip install -r requirements.txt`
 `pip install uvicorn`
 `pip install bycrypt`
-
+###Frontend 
 - nextjs
 `cd project/tourism`
 `npm i`
