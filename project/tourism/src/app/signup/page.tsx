@@ -2,8 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { auth, googleProvider } from "../firebaseConfig"; // Adjust path if needed
-import { signInWithPopup } from "firebase/auth";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -39,33 +37,6 @@ export default function Signup() {
       setUsername("");
       setPassword("");
       router.push("/login");
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError("An unexpected error occurred.");
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Google Sign-In
-  const handleGoogleSignIn = async () => {
-    setError("");
-    setLoading(true);
-
-    try {
-      const result = await signInWithPopup(auth, googleProvider);
-      const user = result.user;
-
-      await fetch("http://localhost:8000/google-auth", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ uid: user.uid, email: user.email }),
-      });
-
-      router.push("/");
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message);
@@ -124,17 +95,6 @@ export default function Signup() {
             {loading ? "Signing Up..." : "Sign Up"}
           </button>
         </form>
-
-        <div className="flex items-center justify-center mt-4 space-x-4">
-          <button 
-            onClick={handleGoogleSignIn} 
-            disabled={loading}
-            className="flex items-center justify-center space-x-2 px-4 py-2 border rounded-lg text-white bg-red-500 shadow-md hover:bg-red-600 hover:scale-105 transition"
-          >
-            <Image src="/google-icon.svg" alt="Google" width={20} height={20} />
-            <span>Sign up with Google</span>
-          </button>
-        </div>
 
         <p className="text-sm text-center text-white mt-4">
           Already have an account?{" "}

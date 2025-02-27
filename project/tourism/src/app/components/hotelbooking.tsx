@@ -64,7 +64,7 @@ export default function HotelBooking() {
     
     const hotelsWithImages: Hotel[] = data.data.map((hotel: Hotel) => ({
       ...hotel,
-      imageUrl: `https://source.unsplash.com/400x300/?hotel,${hotel.name}`,
+      imageUrl: `https://source.unsplash.com/400x300/?hotel,${encodeURIComponent(hotel.name)}`,
     }));
     
     setHotels(hotelsWithImages);
@@ -139,7 +139,13 @@ export default function HotelBooking() {
             <h2 className="text-2xl font-semibold mb-3">Available Hotels</h2>
             {hotels.map((hotel) => (
               <div key={hotel.hotelId} className="border p-4 mb-4 rounded bg-gray-800 flex">
-                <Image src={hotel.imageUrl || "/default-hotel.jpg"} alt={hotel.name} className="w-40 h-32 rounded mr-4"/>
+                <Image 
+                  src={hotel.imageUrl || "/default-hotel.jpg"} 
+                  alt={hotel.name} 
+                  width={400} 
+                  height={300} 
+                  className="rounded mr-4"
+                />
                 <div>
                   <p className="font-semibold text-lg">{hotel.name}</p>
                   <div className="flex gap-3 mt-2">
