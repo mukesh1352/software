@@ -1,14 +1,20 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Depends
 from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import mysql.connector
 import bcrypt
-from fastapi.middleware.cors import CORSMiddleware
 from mysql.connector import pooling
+import jwt
+import datetime
+
+# Secret key for JWT
+SECRET_KEY = "your_secret_key"
+ALGORITHM = "HS256"
 
 app = FastAPI()
 
-# Allow frontend requests (replace "*" with actual frontend URL)
+# Allow frontend requests
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:3000"],  # Adjust for production
@@ -34,7 +40,6 @@ def get_db_connection():
         print(f"Database connection error: {e}")
         return None
 
-# User model
 class User(BaseModel):
     username: str
     password: str
@@ -46,18 +51,32 @@ def hash_password(password: str) -> str:
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     return bcrypt.checkpw(plain_password.encode("utf-8"), hashed_password.encode("utf-8"))
 
+def create_jwt_token(username: str):
+    expiration = datetime.datetime.utcnow() + datetime.timedelta(hours=12)  # Token valid for 12 hours
+    payload = {"sub": username, "exp": expiration}
+    return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
+
+def decode_jwt_token(token: str):
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        return payload["sub"]
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expired")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
 @app.post("/signup")
 def signup(user: User):
     conn = get_db_connection()
     if conn is None:
         return JSONResponse(status_code=500, content={"detail": "Database connection failed"})
-
+    
     cursor = conn.cursor()
     try:
         cursor.execute("SELECT username FROM users WHERE username = %s", (user.username,))
         if cursor.fetchone():
             raise HTTPException(status_code=400, detail="Username already exists")
-
+        
         hashed_password = hash_password(user.password)
         cursor.execute("INSERT INTO users (username, password) VALUES (%s, %s)", (user.username, hashed_password))
         conn.commit()
@@ -73,52 +92,30 @@ def login(user: User):
     conn = get_db_connection()
     if conn is None:
         return JSONResponse(status_code=500, content={"detail": "Database connection failed"})
-
+    
     cursor = conn.cursor()
     try:
         cursor.execute("SELECT password FROM users WHERE username = %s", (user.username,))
         result = cursor.fetchone()
         if not result or not verify_password(user.password, result[0]):
             raise HTTPException(status_code=401, detail="Invalid credentials")
-
-        return {"message": "Login successful"}
-    except mysql.connector.Error as e:
-        return JSONResponse(status_code=500, content={"detail": f"Database Error: {str(e)}"})
-    finally:
-        cursor.close()
-        conn.close()
         
-@app.post("/forgot")
-def forgot_password(user: User):
-    conn = get_db_connection()
-    if conn is None:
-        return JSONResponse(status_code=500, content={"detail": "Database connection failed"})
-
-    cursor = conn.cursor()
-    try:
-        # Fetch the current password hash
-        cursor.execute("SELECT password FROM users WHERE username = %s", (user.username,))
-        result = cursor.fetchone()
-        if not result:
-            raise HTTPException(status_code=404, detail="User not found")
-
-        existing_hashed_password = result[0]
-
-        # Check if the new password is the same as the old one
-        if verify_password(user.password, existing_hashed_password):
-            return JSONResponse(status_code=400, content={"detail": "The new password is the same as the old password"})
-
-        # Hash the new password and update it
-        hashed_password = hash_password(user.password)
-        cursor.execute("UPDATE users SET password = %s WHERE username = %s", (hashed_password, user.username))
-        conn.commit()
-        return {"message": "Password reset successful"}
+        token = create_jwt_token(user.username)
+        return {"message": "Login successful", "token": token, "username": user.username}
     except mysql.connector.Error as e:
         return JSONResponse(status_code=500, content={"detail": f"Database Error: {str(e)}"})
     finally:
         cursor.close()
         conn.close()
 
+@app.get("/protected")
+def protected_route(token: str):
+    username = decode_jwt_token(token)
+    return {"message": "Access granted", "user": username}
+
+@app.post("/logout")
+def logout():
+    return {"message": "Logged out successfully"}
 
 if __name__ == "__main__":
     import uvicorn
