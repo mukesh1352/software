@@ -1,29 +1,23 @@
-from fastapi import FastAPI, HTTPException, Depends
+from fastapi import FastAPI, HTTPException, Depends, Request
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import mysql.connector
 import bcrypt
 from mysql.connector import pooling
-import jwt
-import datetime
-
-# Secret key for JWT
-SECRET_KEY = "your_secret_key"
-ALGORITHM = "HS256"
 
 app = FastAPI()
 
-# Allow frontend requests
+# CORS Middleware (Frontend Communication)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # Adjust for production
+    allow_origins=["http://localhost:3000"],  # Change for production
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Database connection pool
+# Database Configuration
 db_config = {
     "user": "mukesh",
     "password": "mukesh123",
@@ -34,6 +28,7 @@ db_config = {
 connection_pool = pooling.MySQLConnectionPool(pool_name="mypool", pool_size=10, **db_config)
 
 def get_db_connection():
+    """ Get a database connection from the pool """
     try:
         return connection_pool.get_connection()
     except mysql.connector.Error as e:
@@ -45,28 +40,17 @@ class User(BaseModel):
     password: str
 
 def hash_password(password: str) -> str:
+    """ Hash password using bcrypt """
     salt = bcrypt.gensalt()
     return bcrypt.hashpw(password.encode("utf-8"), salt).decode("utf-8")
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
+    """ Verify password using bcrypt """
     return bcrypt.checkpw(plain_password.encode("utf-8"), hashed_password.encode("utf-8"))
-
-def create_jwt_token(username: str):
-    expiration = datetime.datetime.utcnow() + datetime.timedelta(hours=12)  # Token valid for 12 hours
-    payload = {"sub": username, "exp": expiration}
-    return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
-
-def decode_jwt_token(token: str):
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        return payload["sub"]
-    except jwt.ExpiredSignatureError:
-        raise HTTPException(status_code=401, detail="Token expired")
-    except jwt.InvalidTokenError:
-        raise HTTPException(status_code=401, detail="Invalid token")
 
 @app.post("/signup")
 def signup(user: User):
+    """ Register new users """
     conn = get_db_connection()
     if conn is None:
         return JSONResponse(status_code=500, content={"detail": "Database connection failed"})
@@ -80,7 +64,7 @@ def signup(user: User):
         hashed_password = hash_password(user.password)
         cursor.execute("INSERT INTO users (username, password) VALUES (%s, %s)", (user.username, hashed_password))
         conn.commit()
-        return {"message": "User signed up successfully"}
+        return {"message": "User signed up successfully", "username": user.username}
     except mysql.connector.Error as e:
         return JSONResponse(status_code=500, content={"detail": f"Database Error: {str(e)}"})
     finally:
@@ -89,6 +73,7 @@ def signup(user: User):
 
 @app.post("/login")
 def login(user: User):
+    """ Login existing users and return username (instead of JWT) """
     conn = get_db_connection()
     if conn is None:
         return JSONResponse(status_code=500, content={"detail": "Database connection failed"})
@@ -100,8 +85,7 @@ def login(user: User):
         if not result or not verify_password(user.password, result[0]):
             raise HTTPException(status_code=401, detail="Invalid credentials")
         
-        token = create_jwt_token(user.username)
-        return {"message": "Login successful", "token": token, "username": user.username}
+        return {"message": "Login successful", "username": user.username}  # No JWT, just username
     except mysql.connector.Error as e:
         return JSONResponse(status_code=500, content={"detail": f"Database Error: {str(e)}"})
     finally:
@@ -109,12 +93,16 @@ def login(user: User):
         conn.close()
 
 @app.get("/protected")
-def protected_route(token: str):
-    username = decode_jwt_token(token)
+def protected_route(request: Request):
+    """ Protected route (username required) """
+    username = request.headers.get("Username")
+    if not username:
+        raise HTTPException(status_code=401, detail="Unauthorized")
     return {"message": "Access granted", "user": username}
 
 @app.post("/logout")
 def logout():
+    """ Logout user """
     return {"message": "Logged out successfully"}
 
 if __name__ == "__main__":
