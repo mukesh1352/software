@@ -8,6 +8,7 @@ import Slider from "./components/slider";
 import Footer from "./components/footer";
 import ImageGallery1 from "./components/slider1";
 import ImageGallery2 from "./components/slider2";
+import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
 
 export default function Home() {
   return (
@@ -77,11 +78,32 @@ export default function Home() {
         <ImageGallery2 />
 
         {/* Travels Button */}
-        <Link href="/hotels">
+        <Link href="/travels">
           <button className="mt-6 px-6 py-3 bg-green-600 text-white font-semibold text-lg rounded-lg shadow-md hover:bg-green-700 transition">
             View Travels
           </button>
         </Link>
+
+        {/* FAQ Section with Accordion */}
+        <section className="py-10 px-6 w-full flex flex-col items-center">
+          <h1 className="font-serif text-5xl font-extrabold text-gray-900 tracking-wide drop-shadow-lg mb-4">
+            ❓ FAQs
+          </h1>
+          <Accordion type="single" collapsible>
+            <AccordionItem value="item-1">
+              <AccordionTrigger>What is the best time to travel?</AccordionTrigger>
+              <AccordionContent>
+                The best time to travel depends on the destination. Generally, spring and autumn are great seasons for most places.
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="item-2">
+              <AccordionTrigger>How do I find the best accommodations?</AccordionTrigger>
+              <AccordionContent>
+                You can explore our recommended hotels and resorts on the accommodations page.
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+        </section>
       </main>
 
       {/* Footer Section */}
