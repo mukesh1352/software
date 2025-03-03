@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { FaSignInAlt } from "react-icons/fa";
 import Link from "next/link";
+import { ModeToggle } from "./mode-toggler"; // Import Dark Mode Toggle
 
 export default function Header() {
   const [username, setUsername] = useState<string | null>(null);
@@ -40,25 +41,29 @@ export default function Header() {
           <Link href="/travels" className="hover:text-yellow-400 transition-all duration-300">Travels</Link>
         </nav>
 
-        {username ? (
-          <div className="flex items-center space-x-4">
-            <span className="text-white font-semibold">Welcome, {username}!</span>
+        <div className="flex items-center space-x-4">
+          <ModeToggle /> {/* Add Dark Mode Toggle Button */}
+
+          {username ? (
+            <>
+              <span className="text-white font-semibold">Welcome, {username}!</span>
+              <button
+                onClick={handleLogout}
+                className="bg-red-500 text-white py-2 px-4 rounded-full text-lg font-semibold shadow-md transition-all duration-300 hover:bg-red-600 hover:shadow-lg"
+              >
+                Logout
+              </button>
+            </>
+          ) : (
             <button
-              onClick={handleLogout}
-              className="bg-red-500 text-white py-2 px-4 rounded-full text-lg font-semibold shadow-md transition-all duration-300 hover:bg-red-600 hover:shadow-lg"
+              onClick={() => router.push("/signup")}
+              className="flex items-center space-x-2 bg-yellow-500 text-white py-2 px-6 rounded-full text-lg font-semibold shadow-md transition-all duration-300 hover:bg-yellow-600 hover:shadow-lg"
             >
-              Logout
+              <FaSignInAlt className="text-xl" />
+              <span>Sign In</span>
             </button>
-          </div>
-        ) : (
-          <button
-            onClick={() => router.push("/signup")}
-            className="flex items-center space-x-2 bg-yellow-500 text-white py-2 px-6 rounded-full text-lg font-semibold shadow-md transition-all duration-300 hover:bg-yellow-600 hover:shadow-lg"
-          >
-            <FaSignInAlt className="text-xl" />
-            <span>Sign In</span>
-          </button>
-        )}
+          )}
+        </div>
       </div>
     </header>
   );
