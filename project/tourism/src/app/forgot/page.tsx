@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 
-export default function ForgotPassword() { // ✅ Default Export
+export default function ForgotPassword() {
   const [username, setUsername] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [message, setMessage] = useState("");
@@ -16,7 +16,7 @@ export default function ForgotPassword() { // ✅ Default Export
       const response = await fetch("http://localhost:8000/forgot", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password: newPassword }),
+        body: JSON.stringify({ username, password: newPassword }), // Ensure API expects "password" or change it to "newPassword"
       });
 
       const data = await response.json();
@@ -38,8 +38,11 @@ export default function ForgotPassword() { // ✅ Default Export
           <h2 className="text-2xl font-semibold text-center mb-6 text-gray-800">Forgot Password</h2>
           <form onSubmit={handleSubmit}>
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700">Username</label>
+              <label htmlFor="username" className="block text-sm font-medium text-gray-700">
+                Username
+              </label>
               <input
+                id="username"
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
@@ -48,8 +51,11 @@ export default function ForgotPassword() { // ✅ Default Export
               />
             </div>
             <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-700">New Password</label>
+              <label htmlFor="new-password" className="block text-sm font-medium text-gray-700">
+                New Password
+              </label>
               <input
+                id="new-password"
                 type="password"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
@@ -61,7 +67,7 @@ export default function ForgotPassword() { // ✅ Default Export
               type="submit"
               className="w-full bg-indigo-500 text-white p-3 rounded-md hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
             >
-              Reset  Password
+              Reset Password
             </button>
           </form>
           {message && <p className="mt-4 text-center text-sm text-red-600">{message}</p>}
