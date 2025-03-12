@@ -1,16 +1,18 @@
 "use client";
 import { useState } from "react";
-import Image from "next/image";
 
 const AMADEUS_BASE_URL = "https://test.api.amadeus.com/v1";
 const CLIENT_ID = "CSlL4pOCTAadgLQ9p5jvNlIGbIh8qA71";
 const CLIENT_SECRET = "MipI15ogIxj4XwUG";
 
+const INDIAN_CITIES = [
+  "Delhi", "Mumbai", "Bangalore", "Chennai", "Kolkata", "Hyderabad", "Pune", "Ahmedabad"
+];
+
 export default function HotelBooking() {
   const [city, setCity] = useState("");
   const [hotels, setHotels] = useState<Hotel[]>([]);
   const [offers, setOffers] = useState<{ [key: string]: Offer[] }>({});
-  const [privileges, setPrivileges] = useState<{ [key: string]: string[] }>({});
   const [loading, setLoading] = useState(false);
   let accessToken: string | null = null;
 
@@ -30,25 +32,25 @@ export default function HotelBooking() {
     return accessToken;
   };
 
-  interface IATACodeResponse {
-    data: { iataCode: string }[];
-  }
-
   const getIATACode = async (city: string): Promise<string | null> => {
     const token = await getAccessToken();
     const response = await fetch(`${AMADEUS_BASE_URL}/reference-data/locations?subType=CITY&keyword=${city}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
-    const data: IATACodeResponse = await response.json();
+    const data = await response.json();
     return data.data?.[0]?.iataCode || null;
   };
 
   const searchHotels = async () => {
+    if (!INDIAN_CITIES.includes(city)) {
+      alert("Please enter a valid city in India!");
+      return;
+    }
+    
     setLoading(true);
     setHotels([]);
     setOffers({});
-    setPrivileges({});
-    
+
     const cityCode = await getIATACode(city);
     if (!cityCode) {
       alert("City not found!");
@@ -61,13 +63,11 @@ export default function HotelBooking() {
       headers: { Authorization: `Bearer ${token}` },
     });
     const data = await response.json();
-    
-    const hotelsWithImages: Hotel[] = data.data.map((hotel: Hotel) => ({
+    const hotelsWithRatings = (Array.isArray(data.data) ? data.data : []).map(hotel => ({
       ...hotel,
-      imageUrl: `https://source.unsplash.com/400x300/?hotel,${encodeURIComponent(hotel.name)}`,
+      rating: (Math.random() * 2 + 3).toFixed(1), // Random rating between 3.0 - 5.0
     }));
-    
-    setHotels(hotelsWithImages);
+    setHotels(hotelsWithRatings);
     setLoading(false);
   };
 
@@ -77,17 +77,13 @@ export default function HotelBooking() {
       headers: { Authorization: `Bearer ${token}` },
     });
     const data = await response.json();
-    
-    setOffers((prevOffers) => ({
-      ...prevOffers,
-      [hotelId]: data.data || [],
-    }));
+    setOffers((prev) => ({ ...prev, [hotelId]: data.data || [] }));
   };
 
   interface Hotel {
     hotelId: string;
     name: string;
-    imageUrl?: string;
+    rating?: string;
   }
 
   interface Offer {
@@ -98,92 +94,40 @@ export default function HotelBooking() {
     };
   }
 
-  interface PrivilegesResponse {
-    privileges: string[];
-  }
-
-  const getPrivileges = async (hotelId: string) => {
-    const token = await getAccessToken();
-    const response = await fetch(`${AMADEUS_BASE_URL}/accommodations/details?hotelId=${hotelId}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    const data: PrivilegesResponse = await response.json();
-    
-    setPrivileges((prev) => ({
-      ...prev,
-      [hotelId]: data.privileges || [],
-    }));
-  };
-
   return (
     <div className="p-8 bg-gray-900 min-h-screen text-white">
-      <h1 className="text-4xl font-bold mb-6">Hotel Search & Booking</h1>
-      <div className="flex gap-4">
+      <h1 className="text-4xl font-bold mb-6 text-center">Hotel Search in India</h1>
+      <div className="flex justify-center gap-4">
         <input
           type="text"
           value={city}
           onChange={(e) => setCity(e.target.value)}
-          placeholder="Enter City"
-          className="border p-3 rounded bg-gray-800 text-white"
+          placeholder="Enter City (e.g., Delhi)"
+          className="border p-3 rounded bg-gray-800 text-white w-80 text-center"
         />
-        <button onClick={searchHotels} className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+        <button onClick={searchHotels} className="bg-blue-500 text-white px-6 py-3 rounded hover:bg-blue-600 font-semibold">
           Search Hotels
         </button>
       </div>
-      
-      {loading && <p className="mt-4">Loading...</p>}
-
+      {loading && <p className="mt-4 text-center">Loading...</p>}
       <div className="mt-6">
-        {hotels.length > 0 && (
+        {Array.isArray(hotels) && hotels.length > 0 && (
           <>
-            <h2 className="text-2xl font-semibold mb-3">Available Hotels</h2>
-            {hotels.map((hotel) => (
-              <div key={hotel.hotelId} className="border p-4 mb-4 rounded bg-gray-800 flex">
-                <Image 
-                  src={hotel.imageUrl || "/default-hotel.jpg"} 
-                  alt={hotel.name} 
-                  width={400} 
-                  height={300} 
-                  className="rounded mr-4"
-                />
-                <div>
-                  <p className="font-semibold text-lg">{hotel.name}</p>
-                  <div className="flex gap-3 mt-2">
-                    <button
-                      onClick={() => getHotelOffers(hotel.hotelId)}
-                      className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600"
-                    >
-                      View Offers
-                    </button>
-                    <button
-                      onClick={() => getPrivileges(hotel.hotelId)}
-                      className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600"
-                    >
-                      Check Privileges
-                    </button>
-                  </div>
-                  {offers[hotel.hotelId] && offers[hotel.hotelId].length > 0 && (
-                    <div className="mt-2 border-t pt-2">
-                      {offers[hotel.hotelId].map((offer) => (
-                        <p key={offer.id}>
-                          💰 Price: <strong>{offer.price.total} {offer.price.currency}</strong>
-                        </p>
-                      ))}
-                    </div>
-                  )}
-                  {privileges[hotel.hotelId] && privileges[hotel.hotelId].length > 0 && (
-                    <div className="mt-2 border-t pt-2">
-                      <h3 className="font-semibold">Privileges:</h3>
-                      <ul>
-                        {privileges[hotel.hotelId].map((priv, index) => (
-                          <li key={index}>✅ {priv}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
+            <h2 className="text-2xl font-semibold mb-3 text-center">Available Hotels</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {hotels.map((hotel) => (
+                <div key={hotel.hotelId} className="border p-6 rounded bg-gray-800 text-center">
+                  <p className="font-semibold text-lg mb-2">{hotel.name}</p>
+                  <p className="text-yellow-400 font-bold">⭐ {hotel.rating} / 5</p>
+                  <button
+                    onClick={() => getHotelOffers(hotel.hotelId)}
+                    className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 mt-2"
+                  >
+                    View Offers
+                  </button>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </>
         )}
       </div>
