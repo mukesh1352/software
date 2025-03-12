@@ -1,5 +1,5 @@
 import Header from "../components/header";
-import HotelBooking from "../components/hotelbooking";
+import HotelBooking from "../../app/hotelBooking/page";
 export default function Hotel(){
     return(
         <div>
