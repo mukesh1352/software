@@ -1,4 +1,4 @@
-import Header from "../components/header";
+// import Header from "../components/header";
 import HotelBooking from "../components/hotelbooking";
 export default function Hotel(){
     return(
