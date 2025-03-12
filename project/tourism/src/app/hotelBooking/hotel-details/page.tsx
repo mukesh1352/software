@@ -1,7 +1,17 @@
 "use client";
+
+import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 
 export default function HotelDetails() {
+  return (
+    <Suspense fallback={<div className="p-8 min-h-screen flex items-center justify-center text-white">Loading hotel details...</div>}>
+      <HotelDetailsContent />
+    </Suspense>
+  );
+}
+
+function HotelDetailsContent() {
   const searchParams = useSearchParams();
   const hotelName = searchParams.get("name") || "Unknown Hotel";
 
