@@ -29,6 +29,7 @@ describe("HotelBooking Component", () => {
       expect(global.alert).toHaveBeenCalledWith("City not found!");
     });
   });
+
   test("shows error when city is not found", async () => {
     (useRouter as jest.Mock).mockReturnValue({ push: jest.fn() });
 
