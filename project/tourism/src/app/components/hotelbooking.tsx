@@ -5,10 +5,6 @@ const AMADEUS_BASE_URL = "https://test.api.amadeus.com/v1";
 const CLIENT_ID = "CSlL4pOCTAadgLQ9p5jvNlIGbIh8qA71";
 const CLIENT_SECRET = "MipI15ogIxj4XwUG";
 
-const INDIAN_CITIES = [
-  "Delhi", "Mumbai", "Bangalore", "Chennai", "Kolkata", "Hyderabad", "Pune", "Ahmedabad"
-];
-
 export default function HotelBooking() {
   const [city, setCity] = useState("");
   const [hotels, setHotels] = useState<Hotel[]>([]);
@@ -34,7 +30,7 @@ export default function HotelBooking() {
 
   const getIATACode = async (city: string): Promise<string | null> => {
     const token = await getAccessToken();
-    const response = await fetch(`${AMADEUS_BASE_URL}/reference-data/locations?subType=CITY&keyword=${city}`, {
+    const response = await fetch(`${AMADEUS_BASE_URL}/reference-data/locations?subType=CITY&keyword=${city}&countryCode=IN`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     const data = await response.json();
@@ -42,11 +38,6 @@ export default function HotelBooking() {
   };
 
   const searchHotels = async () => {
-    if (!INDIAN_CITIES.includes(city)) {
-      alert("Please enter a valid city in India!");
-      return;
-    }
-    
     setLoading(true);
     setHotels([]);
     setOffers({});
@@ -63,10 +54,12 @@ export default function HotelBooking() {
       headers: { Authorization: `Bearer ${token}` },
     });
     const data = await response.json();
-    const hotelsWithRatings = (Array.isArray(data.data) ? data.data : []).map(hotel => ({
+
+    const hotelsWithRatings = (Array.isArray(data.data) ? data.data : []).map((hotel:Hotel, index: number) => ({
       ...hotel,
-      rating: (Math.random() * 2 + 3).toFixed(1), // Random rating between 3.0 - 5.0
+      rating: (4.0 + (index % 5) * 0.2).toFixed(1) // Assigning consistent but varied ratings
     }));
+
     setHotels(hotelsWithRatings);
     setLoading(false);
   };
@@ -102,7 +95,7 @@ export default function HotelBooking() {
           type="text"
           value={city}
           onChange={(e) => setCity(e.target.value)}
-          placeholder="Enter City (e.g., Delhi)"
+          placeholder="Enter City in India"
           className="border p-3 rounded bg-gray-800 text-white w-80 text-center"
         />
         <button onClick={searchHotels} className="bg-blue-500 text-white px-6 py-3 rounded hover:bg-blue-600 font-semibold">
