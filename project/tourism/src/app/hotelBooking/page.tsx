@@ -15,6 +15,7 @@ export default function HotelBooking() {
 
   const getAccessToken = async () => {
     if (accessToken) return accessToken;
+  
     try {
       const response = await fetch(`${AMADEUS_BASE_URL}/security/oauth2/token`, {
         method: "POST",
@@ -25,14 +26,31 @@ export default function HotelBooking() {
           client_secret: CLIENT_SECRET,
         }),
       });
+  
+      if (!response || typeof response !== "object") {
+        console.warn("No response received from API.");
+        return null;
+      }
+  
+      if (!response.ok) {
+        console.warn("Failed to fetch access token. Status:", response.status);
+        return null;
+      }
+  
       const data = await response.json();
+      if (!data?.access_token) {
+        console.warn("Warning: No access token received.");
+        return null;
+      }
+  
       setAccessToken(data.access_token);
       return data.access_token;
     } catch (error) {
-      console.error("Error fetching access token:", error);
+      console.warn("Unexpected error fetching access token:", error);
       return null;
     }
   };
+  
 
   const getIATACode = async (city: string): Promise<string | null> => {
     const token = await getAccessToken();
@@ -42,11 +60,20 @@ export default function HotelBooking() {
       const response = await fetch(
         `${AMADEUS_BASE_URL}/reference-data/locations?subType=CITY&keyword=${city}&countryCode=IN`,
         { headers: { Authorization: `Bearer ${token}` } }
-      );
+      ).catch((err) => {
+        console.warn("Network error while fetching IATA code:", err);
+        return null;
+      });
+
+      if (!response || !response.ok) {
+        console.warn("Failed to fetch IATA code. Response:", response);
+        return null;
+      }
+
       const data = await response.json();
-      return data.data?.[0]?.iataCode || null;
+      return data?.data?.[0]?.iataCode || null;
     } catch (error) {
-      console.error("Error fetching IATA code:", error);
+      console.warn("Error fetching IATA code:", error);
       return null;
     }
   };
@@ -72,7 +99,17 @@ export default function HotelBooking() {
       const response = await fetch(
         `${AMADEUS_BASE_URL}/reference-data/locations/hotels/by-city?cityCode=${cityCode}`,
         { headers: { Authorization: `Bearer ${token}` } }
-      );
+      ).catch((err) => {
+        console.warn("Network error while fetching hotels:", err);
+        return null;
+      });
+
+      if (!response || !response.ok) {
+        console.warn("Failed to fetch hotels. Response:", response);
+        setLoading(false);
+        return;
+      }
+
       const data = await response.json();
 
       const hotelsWithRatings = (Array.isArray(data.data) ? data.data : []).map((hotel: Hotel, index: number) => ({
@@ -82,7 +119,7 @@ export default function HotelBooking() {
 
       setHotels(hotelsWithRatings);
     } catch (error) {
-      console.error("Error fetching hotels:", error);
+      console.warn("Error fetching hotels:", error);
     } finally {
       setLoading(false);
     }

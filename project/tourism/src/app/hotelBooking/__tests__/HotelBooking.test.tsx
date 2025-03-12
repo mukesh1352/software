@@ -29,28 +29,4 @@ describe("HotelBooking Component", () => {
       expect(global.alert).toHaveBeenCalledWith("City not found!");
     });
   });
-
-  test("shows error when city is not found", async () => {
-    (useRouter as jest.Mock).mockReturnValue({ push: jest.fn() });
-
-    (global.fetch as jest.Mock)
-      .mockResolvedValueOnce({
-        json: () => Promise.resolve({ access_token: "mocked_token" }),
-      }) // Authentication
-      .mockResolvedValueOnce({
-        json: () => Promise.resolve({ data: [] }), // No IATA code found
-      });
-
-    render(<HotelBooking />);
-
-    fireEvent.change(screen.getByPlaceholderText(/enter city/i), {
-      target: { value: "UnknownCity" },
-    });
-
-    fireEvent.click(screen.getByRole("button", { name: /search hotels/i }));
-
-    await waitFor(() => {
-      expect(global.alert).toHaveBeenCalledWith("City not found!");
-    });
-  });
 });
