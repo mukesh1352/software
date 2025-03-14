@@ -7,6 +7,7 @@ import os
 import bcrypt
 import uuid
 from dotenv import load_dotenv
+import uvicorn
 
 # Load environment variables
 load_dotenv()
@@ -123,5 +124,4 @@ async def forgot_password(user: User):
         await conn.close()
 
 if __name__ == "__main__":
-    import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
