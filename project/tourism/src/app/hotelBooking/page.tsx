@@ -15,7 +15,7 @@ export default function HotelBooking() {
 
   const getAccessToken = async () => {
     if (accessToken) return accessToken;
-  
+
     try {
       const response = await fetch(`${AMADEUS_BASE_URL}/security/oauth2/token`, {
         method: "POST",
@@ -26,31 +26,20 @@ export default function HotelBooking() {
           client_secret: CLIENT_SECRET,
         }),
       });
-  
-      if (!response || typeof response !== "object") {
-        console.warn("No response received from API.");
-        return null;
-      }
-  
+
       if (!response.ok) {
         console.warn("Failed to fetch access token. Status:", response.status);
         return null;
       }
-  
+
       const data = await response.json();
-      if (!data?.access_token) {
-        console.warn("Warning: No access token received.");
-        return null;
-      }
-  
       setAccessToken(data.access_token);
       return data.access_token;
     } catch (error) {
-      console.warn("Unexpected error fetching access token:", error);
+      console.warn("Error fetching access token:", error);
       return null;
     }
   };
-  
 
   const getIATACode = async (city: string): Promise<string | null> => {
     const token = await getAccessToken();
@@ -60,12 +49,9 @@ export default function HotelBooking() {
       const response = await fetch(
         `${AMADEUS_BASE_URL}/reference-data/locations?subType=CITY&keyword=${city}&countryCode=IN`,
         { headers: { Authorization: `Bearer ${token}` } }
-      ).catch((err) => {
-        console.warn("Network error while fetching IATA code:", err);
-        return null;
-      });
+      );
 
-      if (!response || !response.ok) {
+      if (!response.ok) {
         console.warn("Failed to fetch IATA code. Response:", response);
         return null;
       }
@@ -99,22 +85,19 @@ export default function HotelBooking() {
       const response = await fetch(
         `${AMADEUS_BASE_URL}/reference-data/locations/hotels/by-city?cityCode=${cityCode}`,
         { headers: { Authorization: `Bearer ${token}` } }
-      ).catch((err) => {
-        console.warn("Network error while fetching hotels:", err);
-        return null;
-      });
+      );
 
-      if (!response || !response.ok) {
+      if (!response.ok) {
         console.warn("Failed to fetch hotels. Response:", response);
         setLoading(false);
         return;
       }
 
       const data = await response.json();
-
       const hotelsWithRatings = (Array.isArray(data.data) ? data.data : []).map((hotel: Hotel, index: number) => ({
         ...hotel,
-        rating: (4.0 + (index % 5) * 0.2).toFixed(1), // Assigning consistent but varied ratings
+        rating: (4.0 + (index % 5) * 0.2).toFixed(1), 
+        cost: (1000 + (index % 5) * 100) 
       }));
 
       setHotels(hotelsWithRatings);
@@ -129,6 +112,7 @@ export default function HotelBooking() {
     hotelId: string;
     name: string;
     rating?: string;
+    cost?: number;
   }
 
   return (
@@ -156,14 +140,15 @@ export default function HotelBooking() {
                 <div
                   key={hotel.hotelId}
                   className="border p-6 rounded bg-gray-800 text-center cursor-pointer"
-                  onClick={() => router.push(`/hotelBooking/hotel-details?name=${encodeURIComponent(hotel.name)}`)}
+                  onClick={() => router.push(`/hotelBooking/hotel-details?name=${encodeURIComponent(hotel.name)}&cost=${hotel.cost}`)}
                 >
                   <p className="font-semibold text-lg mb-2">{hotel.name}</p>
                   <p className="text-yellow-400 font-bold">⭐ {hotel.rating} / 5</p>
+                  <p className="text-lg mt-2">Cost: ₹{hotel.cost}</p>
                   <button
                     onClick={(e) => {
-                      e.stopPropagation(); // Prevent parent div click event
-                      router.push(`/hotelBooking/hotel-details?name=${encodeURIComponent(hotel.name)}`);
+                      e.stopPropagation(); 
+                      router.push(`/hotelBooking/hotel-details?name=${encodeURIComponent(hotel.name)}&cost=${hotel.cost}`);
                     }}
                     className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 mt-2"
                   >
