@@ -14,8 +14,9 @@ function HotelDetailsContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
+  // Get hotel details from URL params
   const hotelName = searchParams.get("name") || "Unknown Hotel";
-  const hotelCost = searchParams.get("cost") || "N/A";
+  const hotelCost = searchParams.get("cost") || "0"; // Default to "0" if no cost provided
 
   const [userName, setUserName] = useState("");
   const [numRooms, setNumRooms] = useState(1);
@@ -25,11 +26,12 @@ function HotelDetailsContent() {
   const [errorMessage, setErrorMessage] = useState("");
 
   const calculateTotalCost = () => {
-    const roomCost = parseFloat(hotelCost) || 0;
-    if (roomCost === 0) {
+    const roomCost = parseFloat(hotelCost);
+    if (isNaN(roomCost) || roomCost <= 0) {
       setErrorMessage("Invalid hotel cost.");
       return;
     }
+    // Calculation based on the number of adults and children
     const total = roomCost * numRooms * (numAdults + numChildren * 0.5);
     setTotalCost(total);
     setErrorMessage("");
@@ -47,7 +49,8 @@ function HotelDetailsContent() {
       number_of_adults: numAdults,
       number_of_children: numChildren,
       cost_per_room: parseFloat(hotelCost),
-      user_id: 1,
+      user_id: 1, // You may replace this with dynamic user ID
+      user_name: userName,
     };
 
     try {
