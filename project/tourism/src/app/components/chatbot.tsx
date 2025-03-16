@@ -94,12 +94,13 @@ export default function Chatbot() {
                 className="w-full p-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
               />
               <button
-                onClick={handleSendMessage}
-                disabled={loading}
-                className="p-3 rounded-md bg-blue-500 text-white disabled:bg-blue-300 transition-all duration-300 hover:bg-blue-400"
-              >
-                {loading ? "Sending..." : "Send"}
-              </button>
+  onClick={handleSendMessage}
+  disabled={loading || !userMessage.trim()}
+  className="p-3 rounded-md bg-blue-500 text-white disabled:bg-blue-300 transition-all duration-300 hover:bg-blue-400"
+>
+  {loading ? "Sending..." : "Send"}
+</button>
+
             </div>
           </div>
         </div>
