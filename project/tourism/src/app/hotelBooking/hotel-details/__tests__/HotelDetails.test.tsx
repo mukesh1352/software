@@ -57,7 +57,7 @@ describe("HotelDetailsContent", () => {
       target: { value: "" },
     });
   
-    // Simulate clicking "Calculate Total Cost" (if required to enable booking)
+    
     const calculateButton = screen.getByRole("button", { name: "Calculate Total Cost" });
     fireEvent.click(calculateButton);
   
@@ -92,7 +92,6 @@ describe("HotelDetailsContent", () => {
       } as Response)
     );
   
-    // Mock the alert function
     const alertMock = jest.spyOn(window, 'alert').mockImplementation(() => {});
   
     render(<HotelDetailsContent />);
@@ -124,10 +123,7 @@ describe("HotelDetailsContent", () => {
     await waitFor(() => {
       expect(alertMock).toHaveBeenCalledWith('Booking successful! Total cost: ₹500.00');
     });
-  
-    // Optionally: Check if the "Booking successful" message appears in the DOM if you refactor the component to display this message instead of using an alert.
-    screen.debug();
-  
-    alertMock.mockRestore();  // Clean up the mock
+    // screen.debug();
+    alertMock.mockRestore();  
   });
   });
