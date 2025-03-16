@@ -3,20 +3,22 @@
 import { useState } from "react";
 import { FaComments } from "react-icons/fa"; // Importing chat bubble icon
 
+interface ChatMessage {
+  role: "user" | "model";
+  text: string;
+}
+
 export default function Chatbot() {
   const [userMessage, setUserMessage] = useState<string>("");
-  const [chatHistory, setChatHistory] = useState<any[]>([]);
+  const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
-  const [isChatOpen, setIsChatOpen] = useState<boolean>(false); // State to handle the chat visibility
+  const [isChatOpen, setIsChatOpen] = useState<boolean>(false);
 
   const handleSendMessage = async () => {
     if (!userMessage.trim()) return;
 
     // Add user's message to chat history
-    setChatHistory((prev) => [
-      ...prev,
-      { role: "user", text: userMessage },
-    ]);
+    setChatHistory((prev) => [...prev, { role: "user", text: userMessage }]);
     setLoading(true);
 
     try {
@@ -32,18 +34,12 @@ export default function Chatbot() {
       const aiMessage = data.message;
 
       // Add AI's response to chat history
-      setChatHistory((prev) => [
-        ...prev,
-        { role: "model", text: aiMessage },
-      ]);
+      setChatHistory((prev) => [...prev, { role: "model", text: aiMessage }]);
     } catch (error) {
       console.error("Error:", error);
       setChatHistory((prev) => [
         ...prev,
-        {
-          role: "model",
-          text: "Sorry, something went wrong. Please try again later.",
-        },
+        { role: "model", text: "Sorry, something went wrong. Please try again later." },
       ]);
     } finally {
       setLoading(false);
@@ -70,9 +66,7 @@ export default function Chatbot() {
               {chatHistory.map((msg, index) => (
                 <div
                   key={index}
-                  className={`message ${
-                    msg.role === "user" ? "text-right" : "text-left"
-                  }`}
+                  className={`message ${msg.role === "user" ? "text-right" : "text-left"}`}
                 >
                   <div
                     className={`${
@@ -99,7 +93,7 @@ export default function Chatbot() {
               <button
                 onClick={handleSendMessage}
                 disabled={loading}
-                className={`p-3 rounded-md bg-blue-500 text-white disabled:bg-blue-300 transition-all duration-300 hover:bg-blue-400`}
+                className="p-3 rounded-md bg-blue-500 text-white disabled:bg-blue-300 transition-all duration-300 hover:bg-blue-400"
               >
                 {loading ? "Sending..." : "Send"}
               </button>
