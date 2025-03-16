@@ -11,6 +11,7 @@ export default function HotelBooking() {
   const [hotels, setHotels] = useState<Hotel[]>([]);
   const [loading, setLoading] = useState(false);
   const [accessToken, setAccessToken] = useState<string | null>(null);
+  const [sortOption, setSortOption] = useState(""); // Sorting state
   const router = useRouter();
 
   const getAccessToken = async () => {
@@ -97,7 +98,7 @@ export default function HotelBooking() {
       const hotelsWithRatings = (Array.isArray(data.data) ? data.data : []).map((hotel: Hotel, index: number) => ({
         ...hotel,
         rating: (4.0 + (index % 5) * 0.2).toFixed(1), 
-        cost: (1000 + (index % 5) * 100) 
+        cost: 1000 + (index % 5) * 100, 
       }));
 
       setHotels(hotelsWithRatings);
@@ -106,6 +107,31 @@ export default function HotelBooking() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSort = (option: string) => {
+    setSortOption(option);
+
+    let sortedHotels = [...hotels];
+
+    switch (option) {
+      case "alphabetical-asc":
+        sortedHotels.sort((a, b) => a.name.localeCompare(b.name));
+        break;
+      case "alphabetical-desc":
+        sortedHotels.sort((a, b) => b.name.localeCompare(a.name));
+        break;
+      case "cost-low-high":
+        sortedHotels.sort((a, b) => (a.cost ?? 0) - (b.cost ?? 0));
+        break;
+      case "cost-high-low":
+        sortedHotels.sort((a, b) => (b.cost ?? 0) - (a.cost ?? 0));
+        break;
+      default:
+        break;
+    }
+
+    setHotels(sortedHotels);
   };
 
   interface Hotel {
@@ -118,6 +144,7 @@ export default function HotelBooking() {
   return (
     <div className="p-8 bg-gray-900 min-h-screen text-white">
       <h1 className="text-4xl font-bold mb-6 text-center">Hotel Search in India</h1>
+
       <div className="flex justify-center gap-4">
         <input
           type="text"
@@ -130,9 +157,28 @@ export default function HotelBooking() {
           Search Hotels
         </button>
       </div>
+
+      {hotels.length > 0 && (
+        <div className="mt-6 text-center">
+          <label className="text-lg mr-3">Sort By:</label>
+          <select
+            value={sortOption}
+            onChange={(e) => handleSort(e.target.value)}
+            className="p-2 bg-gray-800 text-white rounded"
+          >
+            <option value="">Select an option</option>
+            <option value="alphabetical-asc">Alphabetical (A-Z)</option>
+            <option value="alphabetical-desc">Alphabetical (Z-A)</option>
+            <option value="cost-low-high">Cost (Low to High)</option>
+            <option value="cost-high-low">Cost (High to Low)</option>
+          </select>
+        </div>
+      )}
+
       {loading && <p className="mt-4 text-center">Loading...</p>}
+
       <div className="mt-6">
-        {Array.isArray(hotels) && hotels.length > 0 && (
+        {hotels.length > 0 && (
           <>
             <h2 className="text-2xl font-semibold mb-3 text-center">Available Hotels</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
