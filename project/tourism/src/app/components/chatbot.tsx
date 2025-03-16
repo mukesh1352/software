@@ -1,26 +1,24 @@
 "use client";
 
 import { useState } from "react";
-import { FaComments } from "react-icons/fa"; // Importing chat bubble icon
+import { FaComments } from "react-icons/fa"; 
 
-// Define the interface for chat messages
+
 interface ChatMessage {
-  role: "user" | "model"; // User and model (AI) roles
+  role: "user" | "model"; 
   text: string;
 }
 
 export default function Chatbot() {
-  // State hooks for user message, chat history, loading status, and chat window open state
   const [userMessage, setUserMessage] = useState<string>("");
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [isChatOpen, setIsChatOpen] = useState<boolean>(false);
 
-  // Handle sending the user message and receiving the AI's response
   const handleSendMessage = async () => {
-    if (!userMessage.trim()) return; // Don't send empty messages
+    if (!userMessage.trim()) return; 
 
-    // Add user's message to the chat history
+    
     setChatHistory((prev) => [...prev, { role: "user", text: userMessage }]);
     setLoading(true);
 
@@ -40,20 +38,19 @@ export default function Chatbot() {
       setChatHistory((prev) => [...prev, { role: "model", text: aiMessage }]);
     } catch (error) {
       console.error("Error:", error);
-      // In case of an error, show an error message from the model
       setChatHistory((prev) => [
         ...prev,
         { role: "model", text: "Sorry, something went wrong. Please try again later." },
       ]);
     } finally {
       setLoading(false);
-      setUserMessage(""); // Clear the input field after sending
+      setUserMessage("");
     }
   };
 
   return (
     <>
-      {/* Chat Icon: Button to open and close chat window */}
+      
       <button
         onClick={() => setIsChatOpen(!isChatOpen)}
         className="fixed bottom-6 right-6 bg-blue-500 p-4 rounded-full text-white shadow-lg hover:bg-blue-400 transition-colors duration-300"
