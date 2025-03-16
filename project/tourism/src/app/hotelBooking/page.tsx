@@ -11,7 +11,7 @@ export default function HotelBooking() {
   const [hotels, setHotels] = useState<Hotel[]>([]);
   const [loading, setLoading] = useState(false);
   const [accessToken, setAccessToken] = useState<string | null>(null);
-  const [sortOption, setSortOption] = useState(""); // Sorting state
+  const [selectedSortOptions, setSelectedSortOptions] = useState<string[]>([]); // Multiple sort criteria state
   const router = useRouter();
 
   const getAccessToken = async () => {
@@ -97,8 +97,8 @@ export default function HotelBooking() {
       const data = await response.json();
       const hotelsWithRatings = (Array.isArray(data.data) ? data.data : []).map((hotel: Hotel, index: number) => ({
         ...hotel,
-        rating: (4.0 + (index % 5) * 0.2).toFixed(1), 
-        cost: 1000 + (index % 5) * 100, 
+        rating: (4.0 + (index % 5) * 0.2).toFixed(1),
+        cost: 1000 + (index % 5) * 100,
       }));
 
       setHotels(hotelsWithRatings);
@@ -109,26 +109,24 @@ export default function HotelBooking() {
     }
   };
 
-  const handleSort = (option: string) => {
-    setSortOption(option);
-
+  const handleSort = () => {
     let sortedHotels = [...hotels];
 
-    switch (option) {
-      case "alphabetical-asc":
-        sortedHotels.sort((a, b) => a.name.localeCompare(b.name));
-        break;
-      case "alphabetical-desc":
-        sortedHotels.sort((a, b) => b.name.localeCompare(a.name));
-        break;
-      case "cost-low-high":
-        sortedHotels.sort((a, b) => (a.cost ?? 0) - (b.cost ?? 0));
-        break;
-      case "cost-high-low":
-        sortedHotels.sort((a, b) => (b.cost ?? 0) - (a.cost ?? 0));
-        break;
-      default:
-        break;
+    // Sort hotels based on selected criteria
+    if (selectedSortOptions.includes("alphabetical-asc")) {
+      sortedHotels.sort((a, b) => a.name.localeCompare(b.name));
+    }
+
+    if (selectedSortOptions.includes("alphabetical-desc")) {
+      sortedHotels.sort((a, b) => b.name.localeCompare(a.name));
+    }
+
+    if (selectedSortOptions.includes("cost-low-high")) {
+      sortedHotels.sort((a, b) => (a.cost ?? 0) - (b.cost ?? 0));
+    }
+
+    if (selectedSortOptions.includes("cost-high-low")) {
+      sortedHotels.sort((a, b) => (b.cost ?? 0) - (a.cost ?? 0));
     }
 
     setHotels(sortedHotels);
@@ -161,17 +159,63 @@ export default function HotelBooking() {
       {hotels.length > 0 && (
         <div className="mt-6 text-center">
           <label className="text-lg mr-3">Sort By:</label>
-          <select
-            value={sortOption}
-            onChange={(e) => handleSort(e.target.value)}
-            className="p-2 bg-gray-800 text-white rounded"
-          >
-            <option value="">Select an option</option>
-            <option value="alphabetical-asc">Alphabetical (A-Z)</option>
-            <option value="alphabetical-desc">Alphabetical (Z-A)</option>
-            <option value="cost-low-high">Cost (Low to High)</option>
-            <option value="cost-high-low">Cost (High to Low)</option>
-          </select>
+          <div className="flex justify-center gap-4">
+            <label className="flex items-center">
+              <input
+                type="checkbox"
+                value="alphabetical-asc"
+                onChange={(e) => {
+                  const updatedSortOptions = e.target.checked
+                    ? [...selectedSortOptions, "alphabetical-asc"]
+                    : selectedSortOptions.filter((option) => option !== "alphabetical-asc");
+                  setSelectedSortOptions(updatedSortOptions);
+                }}
+              />
+              Alphabetical (A-Z)
+            </label>
+            <label className="flex items-center">
+              <input
+                type="checkbox"
+                value="alphabetical-desc"
+                onChange={(e) => {
+                  const updatedSortOptions = e.target.checked
+                    ? [...selectedSortOptions, "alphabetical-desc"]
+                    : selectedSortOptions.filter((option) => option !== "alphabetical-desc");
+                  setSelectedSortOptions(updatedSortOptions);
+                }}
+              />
+              Alphabetical (Z-A)
+            </label>
+            <label className="flex items-center">
+              <input
+                type="checkbox"
+                value="cost-low-high"
+                onChange={(e) => {
+                  const updatedSortOptions = e.target.checked
+                    ? [...selectedSortOptions, "cost-low-high"]
+                    : selectedSortOptions.filter((option) => option !== "cost-low-high");
+                  setSelectedSortOptions(updatedSortOptions);
+                }}
+              />
+              Cost (Low to High)
+            </label>
+            <label className="flex items-center">
+              <input
+                type="checkbox"
+                value="cost-high-low"
+                onChange={(e) => {
+                  const updatedSortOptions = e.target.checked
+                    ? [...selectedSortOptions, "cost-high-low"]
+                    : selectedSortOptions.filter((option) => option !== "cost-high-low");
+                  setSelectedSortOptions(updatedSortOptions);
+                }}
+              />
+              Cost (High to Low)
+            </label>
+          </div>
+          <button onClick={handleSort} className="bg-blue-500 text-white px-6 py-3 rounded hover:bg-blue-600 mt-2">
+            Apply Sorting
+          </button>
         </div>
       )}
 
