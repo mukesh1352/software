@@ -43,7 +43,7 @@ export default function HotelBooking() {
 
   const getIATACode = async (city: string): Promise<string | null> => {
     const token = await getAccessToken();
-    if (!token) return null;
+    if (!token) {return null};
 
     try {
       const response = await fetch(
