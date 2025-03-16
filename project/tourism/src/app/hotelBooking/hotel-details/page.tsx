@@ -15,26 +15,28 @@ function HotelDetailsContent() {
   const router = useRouter();
 
   const hotelName = searchParams.get("name") || "Unknown Hotel";
-  const hotelCost = searchParams.get("cost") || "N/A";
+  const hotelCost = searchParams.get("cost") ? parseFloat(searchParams.get("cost") as string) : 87.50;
 
   // State for form inputs and total cost
-  const [userName, setUserName] = useState("");
-  const [numRooms, setNumRooms] = useState(1);
-  const [numAdults, setNumAdults] = useState(1);
-  const [numChildren, setNumChildren] = useState(0);
+  const [userName, setUserName] = useState<string>("");
+  const [numRooms, setNumRooms] = useState<number>(1);
+  const [numAdults, setNumAdults] = useState<number>(1);
+  const [numChildren, setNumChildren] = useState<number>(0);
   const [totalCost, setTotalCost] = useState<number>(0);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
 
   // Function to calculate total cost based on inputs
   const calculateTotalCost = () => {
-    const roomCost = parseFloat(hotelCost) || 0;
+    const roomCost = hotelCost || 0;
     const total = roomCost * numRooms * (numAdults + numChildren * 0.5); // Assuming children pay half the price
-    setTotalCost(total);
+    setTotalCost(parseFloat(total.toFixed(2)));
   };
 
   // Function to handle booking
   const handleBooking = async () => {
-    if (!userName || totalCost <= 0) {
-      alert("Please fill in all fields and calculate the total cost.");
+    if (!userName || numRooms <= 0 || numAdults <= 0 || totalCost <= 0) {
+      setError("Please fill in all fields and calculate the total cost.");
       return;
     }
 
@@ -43,9 +45,12 @@ function HotelDetailsContent() {
       number_of_rooms: numRooms,
       number_of_adults: numAdults,
       number_of_children: numChildren,
-      cost_per_room: parseFloat(hotelCost), // Adding cost_per_room to the request body
+      cost_per_room: hotelCost,
       user_id: 1, // This should be dynamically set based on the logged-in user (e.g., from a session or auth state)
     };
+
+    setIsLoading(true);
+    setError(null);
 
     try {
       const response = await fetch("http://localhost:8000/bookings", {
@@ -62,11 +67,13 @@ function HotelDetailsContent() {
         router.push("/"); // Redirect after successful booking
       } else {
         const errorData = await response.json();
-        alert(`Booking failed: ${errorData.detail || "Please try again."}`);
+        setError(`Booking failed: ${errorData.detail}`);
       }
     } catch (error) {
       console.error("Error booking hotel:", error);
-      alert("Error booking hotel. Please try again.");
+      setError("Error booking hotel. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -84,31 +91,34 @@ function HotelDetailsContent() {
             onChange={(e) => setUserName(e.target.value)}
             placeholder="Enter your name"
             className="border p-3 rounded bg-gray-800 text-white"
+            required
           />
           
           <label className="text-lg">Number of Rooms</label>
           <input
             type="number"
             value={numRooms}
-            onChange={(e) => setNumRooms(Number(e.target.value))}
+            onChange={(e) => setNumRooms(Math.max(1, Number(e.target.value)))}
             min="1"
             className="border p-3 rounded bg-gray-800 text-white"
+            required
           />
           
           <label className="text-lg">Number of Adults</label>
           <input
             type="number"
             value={numAdults}
-            onChange={(e) => setNumAdults(Number(e.target.value))}
+            onChange={(e) => setNumAdults(Math.max(1, Number(e.target.value)))}
             min="1"
             className="border p-3 rounded bg-gray-800 text-white"
+            required
           />
           
           <label className="text-lg">Number of Children</label>
           <input
             type="number"
             value={numChildren}
-            onChange={(e) => setNumChildren(Number(e.target.value))}
+            onChange={(e) => setNumChildren(Math.max(0, Number(e.target.value)))}
             min="0"
             className="border p-3 rounded bg-gray-800 text-white"
           />
@@ -128,16 +138,21 @@ function HotelDetailsContent() {
             </div>
           )}
 
-          {totalCost > 0 && (
-            <div className="mt-4 text-center">
-              <button
-                onClick={handleBooking}
-                className="bg-green-500 text-white px-6 py-3 rounded hover:bg-green-600"
-              >
-                Book Now
-              </button>
+          {error && (
+            <div className="mt-4 text-center text-red-500">
+              <p>{error}</p>
             </div>
           )}
+
+          <div className="mt-4 text-center">
+            <button
+              onClick={handleBooking}
+              disabled={isLoading || !userName || totalCost <= 0}
+              className="bg-green-500 text-white px-6 py-3 rounded hover:bg-green-600 disabled:bg-green-300"
+            >
+              {isLoading ? "Booking..." : "Book Now"}
+            </button>
+          </div>
         </div>
       </div>
     </div>
