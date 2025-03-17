@@ -82,7 +82,7 @@ const BookingCRUD = () => {
         user_id,
         user_name,
       });
-  
+
       if (response.status === 200) {
         setBookings((prevBookings) =>
           prevBookings.map((booking) =>
@@ -91,6 +91,7 @@ const BookingCRUD = () => {
         );
         resetForm();
         setEditing(false);
+        setCurrentBooking(null); // Reset the current booking after update
       } else {
         console.error("Failed to update booking");
       }
@@ -177,17 +178,23 @@ const BookingCRUD = () => {
           onChange={(e) => setTotalCost(Number(e.target.value))}
         />
         <input
-          type="text"
-          placeholder="Phone Number"
-          value={phone_number}
-          onChange={(e) => setPhoneNumber(e.target.value)}
-        />
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
+  type="number"
+  placeholder="Total Cost"
+  value={total_cost || ""}
+  onChange={(e) => {
+    const value = e.target.value;
+    const numericValue = value === "" ? 0 : Number(value); // Check for empty string and convert to number
+    setTotalCost(numericValue);
+  }}
+/>
+
+<input
+  type="email"
+  placeholder="Email"
+  value={email || ""}  // Ensure the email value is always a string
+  onChange={(e) => setEmail(e.target.value)} // Handle the email input properly
+/>
+
         <input
           type="number"
           placeholder="User ID"

@@ -30,24 +30,49 @@ export async function POST(req: Request) {
 }
 
 // ✅ Update a booking
-export async function PUT(req: Request, { params }: { params: { id: string } }) {
-    const id = params.id; // Extract the id from the URL path
-    try {
-      const { hotel_name, number_of_rooms, number_of_adults, number_of_children, total_cost, phone_number, email, user_id, user_name } = await req.json();
+// ✅ Update a booking
+export async function PUT(req: Request, context: { params: { id: string } }) {
+  const { params } = context; // Correctly handle dynamic params
+  const id = params.id; // The dynamic `id` from the URL
   
-      const query = `
-        UPDATE bookings
-        SET hotel_name = ?, number_of_rooms = ?, number_of_adults = ?, number_of_children = ?, total_cost = ?, phone_number = ?, email = ?, user_id = ?, user_name = ?
-        WHERE id = ?
-      `;
-      const values = [hotel_name, number_of_rooms, number_of_adults, number_of_children, total_cost, phone_number, email, user_id, user_name, id];
-  
-      await pool.query(query, values);
-      return NextResponse.json({ id, hotel_name, number_of_rooms, number_of_adults, number_of_children, total_cost, phone_number, email, user_id, user_name }, { status: 200 });
-    } catch (error) {
-      return NextResponse.json({ message: 'Error updating booking', error: (error as any).message }, { status: 500 });
-    }
+  if (!id) {
+    return NextResponse.json({ message: 'Booking ID is required' }, { status: 400 });
   }
+  
+  try {
+    // Get the data from the request body
+    const { hotel_name, number_of_rooms, number_of_adults, number_of_children, total_cost, phone_number, email, user_id, user_name } = await req.json();
+
+    // Validate the data
+    if (!hotel_name || !number_of_rooms || !number_of_adults || !total_cost || !phone_number || !email || !user_id || !user_name) {
+      return NextResponse.json({ message: 'Missing required fields' }, { status: 400 });
+    }
+
+    // Prepare the update query
+    const query = `
+      UPDATE bookings
+      SET hotel_name = ?, number_of_rooms = ?, number_of_adults = ?, number_of_children = ?, total_cost = ?, phone_number = ?, email = ?, user_id = ?, user_name = ?
+      WHERE id = ?
+    `;
+    
+    // Define the values to be inserted into the query
+    const values = [hotel_name, number_of_rooms, number_of_adults, number_of_children, total_cost, phone_number, email, user_id, user_name, id];
+
+    // Execute the update query
+    const [result] = await pool.query(query, values);
+
+    // Check if any row was affected, meaning the update was successful
+    if ((result as any).affectedRows === 0) {
+      return NextResponse.json({ message: 'Booking not found or no changes made' }, { status: 404 });
+    }
+
+    // Return the updated booking details
+    return NextResponse.json({ id, hotel_name, number_of_rooms, number_of_adults, number_of_children, total_cost, phone_number, email, user_id, user_name }, { status: 200 });
+  } catch (error) {
+    // Handle unexpected errors
+    return NextResponse.json({ message: 'Error updating booking', error: (error as any).message }, { status: 500 });
+  }
+}
   
 
 // ✅ Delete a booking
