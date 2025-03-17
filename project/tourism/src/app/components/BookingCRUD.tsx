@@ -9,7 +9,6 @@ interface Booking {
   number_of_rooms: number;
   number_of_adults: number;
   number_of_children: number;
-  total_cost: number;
   user_id: number;
   user_name: string;
 }
@@ -162,7 +161,6 @@ const BookingCRUD = () => {
           onChange={(e) => setNumberOfChildren(Number(e.target.value))}
           className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
-        {/* Removed Total Cost field */}
         <input
           type="number"
           placeholder="User ID"

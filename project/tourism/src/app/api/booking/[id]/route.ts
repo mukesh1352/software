@@ -24,9 +24,9 @@ export async function PUT(req: Request, context: { params: { id: string } }) {
   const { id } = context.params; // Extract the ID from the URL path
 
   try {
-    const { hotel_name, number_of_rooms, number_of_adults, number_of_children, total_cost, phone_number, email, user_id, user_name } = await req.json();
+    const { hotel_name, number_of_rooms, number_of_adults, number_of_children, user_id, user_name } = await req.json();
 
-    if (!hotel_name || !number_of_rooms || !number_of_adults || !total_cost || !phone_number || !email || !user_id || !user_name) {
+    if (!hotel_name || !number_of_rooms || !number_of_adults || !user_id || !user_name) {
       return NextResponse.json({ message: 'Missing required fields' }, { status: 400 });
     }
 
@@ -38,13 +38,13 @@ export async function PUT(req: Request, context: { params: { id: string } }) {
       return NextResponse.json({ message: 'Booking not found' }, { status: 404 });
     }
 
-    // Update the booking
+    // Update the booking without total_cost
     const query = `
       UPDATE bookings
-      SET hotel_name = ?, number_of_rooms = ?, number_of_adults = ?, number_of_children = ?, total_cost = ?, phone_number = ?, email = ?, user_id = ?, user_name = ?
+      SET hotel_name = ?, number_of_rooms = ?, number_of_adults = ?, number_of_children = ?, user_id = ?, user_name = ?
       WHERE id = ?
     `;
-    const values = [hotel_name, number_of_rooms, number_of_adults, number_of_children, total_cost, phone_number, email, user_id, user_name, id];
+    const values = [hotel_name, number_of_rooms, number_of_adults, number_of_children, user_id, user_name, id];
 
     const [result] = await pool.query(query, values);
 
@@ -52,12 +52,13 @@ export async function PUT(req: Request, context: { params: { id: string } }) {
       return NextResponse.json({ message: 'No changes made' }, { status: 400 });
     }
 
-    return NextResponse.json({ id, hotel_name, number_of_rooms, number_of_adults, number_of_children, total_cost, phone_number, email, user_id, user_name }, { status: 200 });
+    return NextResponse.json({ id, hotel_name, number_of_rooms, number_of_adults, number_of_children, user_id, user_name }, { status: 200 });
   } catch (error) {
     console.error('Error updating booking', error);
     return NextResponse.json({ message: 'Failed to update booking', error: (error as Error).message }, { status: 500 });
   }
 }
+
 
 // ✅ Delete a booking by ID
 export async function DELETE(req: Request, { params }: { params: { id: string } }) {

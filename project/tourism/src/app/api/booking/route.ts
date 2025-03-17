@@ -34,48 +34,6 @@ export async function POST(req: Request) {
   }
 }
 
-// ✅ Update a booking
-export async function PUT(req: Request, { params }: { params: { id: string } }) {
-  const id = params.id; // Extract the id from the URL path
-
-  try {
-    // Get the data from the request
-    const { hotel_name, number_of_rooms, number_of_adults, number_of_children, total_cost, phone_number, email, user_id, user_name } = await req.json();
-
-    // Validate required fields
-    if (!hotel_name || !number_of_rooms || !number_of_adults || !total_cost || !phone_number || !email || !user_id || !user_name) {
-      return NextResponse.json({ message: 'Missing required fields' }, { status: 400 });
-    }
-
-    // Check if the booking exists before updating
-    const checkQuery = 'SELECT * FROM bookings WHERE id = ?';
-    const [existingBooking] = await pool.query(checkQuery, [id]);
-
-    if ((existingBooking as any[]).length === 0) {
-      return NextResponse.json({ message: 'Booking not found' }, { status: 404 });
-    }
-
-    // Prepare the update query
-    const query = `
-      UPDATE bookings
-      SET hotel_name = ?, number_of_rooms = ?, number_of_adults = ?, number_of_children = ?, total_cost = ?, phone_number = ?, email = ?, user_id = ?, user_name = ?
-      WHERE id = ?
-    `;
-    const values = [hotel_name, number_of_rooms, number_of_adults, number_of_children, total_cost, phone_number, email, user_id, user_name, id];
-
-    // Execute the update query
-    const [result] = await pool.query(query, values);
-
-    if ((result as any).affectedRows === 0) {
-      return NextResponse.json({ message: 'No changes made' }, { status: 400 });
-    }
-
-    return NextResponse.json({ id, hotel_name, number_of_rooms, number_of_adults, number_of_children, total_cost, phone_number, email, user_id, user_name }, { status: 200 });
-
-  } catch (error: any) {
-    return NextResponse.json({ message: 'Error updating booking', error: error.message }, { status: 500 });
-  }
-}
 
 // ✅ Delete a booking
 export async function DELETE(req: Request, { params }: { params: { id: string } }) {
