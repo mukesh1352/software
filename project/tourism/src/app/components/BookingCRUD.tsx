@@ -1,3 +1,4 @@
+"use client";
 import { useState, useEffect } from "react";
 import axios from "axios";
 
@@ -10,8 +11,6 @@ interface Booking {
   user_id: number;
   user_name: string;
   total_cost: number;
-  phone_number: string;
-  email: string;
 }
 
 const BookingCRUD = () => {
@@ -79,9 +78,7 @@ const BookingCRUD = () => {
     <div className="max-w-4xl mx-auto p-6 bg-white shadow-lg rounded-lg">
       <h1 className="text-3xl font-semibold text-center mb-6">Booking Management</h1>
       <div className="space-y-4">
-        {[
-          "hotel_name", "number_of_rooms", "number_of_adults", "number_of_children", "user_id", "user_name", "total_cost", "phone_number", "email"
-        ].map((field) => (
+        {["hotel_name", "number_of_rooms", "number_of_adults", "number_of_children", "user_id", "user_name", "total_cost"].map((field) => (
           <input
             key={field}
             type={field.includes("number") ? "number" : "text"}
@@ -107,7 +104,7 @@ const BookingCRUD = () => {
             className="flex justify-between items-center p-4 border border-gray-300 rounded-md shadow-sm"
           >
             <div>
-              <p><strong>{booking.hotel_name}</strong> - {booking.number_of_rooms} rooms</p>
+              <p><strong>{booking.hotel_name}</strong> - {booking.number_of_rooms} rooms - {booking.number_of_adults} adults - {booking.number_of_children} children - User: {booking.user_name} (ID: {booking.user_id}) - Total Cost: ${booking.total_cost}</p>
             </div>
             <div>
               <button
