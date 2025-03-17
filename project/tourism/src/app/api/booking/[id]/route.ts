@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import pool from '../../lib/db'; // Using connection pool
+import pool from '../../../lib/db'; // Using connection pool
 
 // ✅ Get all bookings
 export async function GET() {

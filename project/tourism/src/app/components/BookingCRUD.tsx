@@ -1,20 +1,34 @@
 "use client";
-import { useState, useEffect } from 'react';
-import axios from 'axios';
+import { useState, useEffect } from "react";
+import axios from "axios";
+
+// Define the type for a Booking
+interface Booking {
+  id: number;
+  hotel_name: string;
+  number_of_rooms: number;
+  number_of_adults: number;
+  number_of_children: number;
+  total_cost: number;
+  phone_number: string;
+  email: string;
+  user_id: number;
+  user_name: string;
+}
 
 const BookingCRUD = () => {
-  const [bookings, setBookings] = useState<any[]>([]);
-  const [hotel_name, setHotelName] = useState('');
-  const [number_of_rooms, setNumberOfRooms] = useState(0);
-  const [number_of_adults, setNumberOfAdults] = useState(0);
-  const [number_of_children, setNumberOfChildren] = useState(0);
-  const [total_cost, setTotalCost] = useState(0);
-  const [phone_number, setPhoneNumber] = useState('');
-  const [email, setEmail] = useState('');
-  const [user_id, setUserId] = useState(0);
-  const [user_name, setUserName] = useState('');
-  const [editing, setEditing] = useState(false);
-  const [currentBooking, setCurrentBooking] = useState<any>(null);
+  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [hotel_name, setHotelName] = useState<string>("");
+  const [number_of_rooms, setNumberOfRooms] = useState<number>(0);
+  const [number_of_adults, setNumberOfAdults] = useState<number>(0);
+  const [number_of_children, setNumberOfChildren] = useState<number>(0);
+  const [total_cost, setTotalCost] = useState<number>(0);
+  const [phone_number, setPhoneNumber] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
+  const [user_id, setUserId] = useState<number>(0);
+  const [user_name, setUserName] = useState<string>("");
+  const [editing, setEditing] = useState<boolean>(false);
+  const [currentBooking, setCurrentBooking] = useState<Booking | null>(null);
 
   useEffect(() => {
     fetchBookings();
@@ -22,16 +36,16 @@ const BookingCRUD = () => {
 
   const fetchBookings = async () => {
     try {
-      const response = await axios.get('/api/booking');
-      setBookings(response.data as any[]);
+      const response = await axios.get("/api/booking");
+      setBookings(response.data as Booking[]);
     } catch (error) {
-      console.error('Error fetching bookings', error);
+      console.error("Error fetching bookings", error);
     }
   };
 
   const createBooking = async () => {
     try {
-      const response = await axios.post('/api/booking', {
+      const response = await axios.post("/api/booking", {
         hotel_name,
         number_of_rooms,
         number_of_adults,
@@ -42,17 +56,22 @@ const BookingCRUD = () => {
         user_id,
         user_name,
       });
-      setBookings([...bookings, response.data]);
-      resetForm();
+
+      if (response.status === 201) {
+        setBookings((prevBookings) => [...prevBookings, response.data as Booking]);
+        resetForm();
+      } else {
+        console.error("Failed to create booking");
+      }
     } catch (error) {
-      console.error('Error creating booking', error);
+      console.error("Error creating booking", error);
     }
   };
 
   const updateBooking = async () => {
+    if (!currentBooking) return;
     try {
-      const response = await axios.put('/api/booking', {
-        id: currentBooking.id,
+      const response = await axios.put(`/api/booking/${currentBooking.id}`, {
         hotel_name,
         number_of_rooms,
         number_of_adults,
@@ -63,27 +82,39 @@ const BookingCRUD = () => {
         user_id,
         user_name,
       });
-      const updatedBookings = bookings.map((booking) =>
-        booking.id === currentBooking.id ? response.data : booking
-      );
-      setBookings(updatedBookings);
-      resetForm();
-      setEditing(false);
+  
+      if (response.status === 200) {
+        setBookings((prevBookings) =>
+          prevBookings.map((booking) =>
+            booking.id === currentBooking.id ? (response.data as Booking) : booking
+          )
+        );
+        resetForm();
+        setEditing(false);
+      } else {
+        console.error("Failed to update booking");
+      }
     } catch (error) {
-      console.error('Error updating booking', error);
+      console.error("Error updating booking", error);
     }
   };
 
   const deleteBooking = async (id: number) => {
     try {
-      await axios.delete(`/api/bookings/${id}`);
-      setBookings(bookings.filter((booking) => booking.id !== id));
+      const response = await axios.delete(`/api/booking/${id}`);
+      if (response.status === 200) {
+        setBookings((prevBookings) =>
+          prevBookings.filter((booking) => booking.id !== id)
+        );
+      } else {
+        console.error("Failed to delete booking");
+      }
     } catch (error) {
-      console.error('Error deleting booking', error);
+      console.error("Error deleting booking", error);
     }
   };
 
-  const handleEdit = (booking: any) => {
+  const handleEdit = (booking: Booking) => {
     setEditing(true);
     setCurrentBooking(booking);
     setHotelName(booking.hotel_name);
@@ -98,20 +129,22 @@ const BookingCRUD = () => {
   };
 
   const resetForm = () => {
-    setHotelName('');
+    setHotelName("");
     setNumberOfRooms(0);
     setNumberOfAdults(0);
     setNumberOfChildren(0);
     setTotalCost(0);
-    setPhoneNumber('');
-    setEmail('');
+    setPhoneNumber("");
+    setEmail("");
     setUserId(0);
-    setUserName('');
+    setUserName("");
   };
 
   return (
     <div>
       <h1>Booking Management</h1>
+
+      {/* Form to create or edit bookings */}
       <div>
         <input
           type="text"
@@ -122,26 +155,26 @@ const BookingCRUD = () => {
         <input
           type="number"
           placeholder="Rooms"
-          value={number_of_rooms}
-          onChange={(e) => setNumberOfRooms(parseInt(e.target.value))}
+          value={number_of_rooms || ""}
+          onChange={(e) => setNumberOfRooms(Number(e.target.value))}
         />
         <input
           type="number"
           placeholder="Adults"
-          value={number_of_adults}
-          onChange={(e) => setNumberOfAdults(parseInt(e.target.value))}
+          value={number_of_adults || ""}
+          onChange={(e) => setNumberOfAdults(Number(e.target.value))}
         />
         <input
           type="number"
           placeholder="Children"
-          value={number_of_children}
-          onChange={(e) => setNumberOfChildren(parseInt(e.target.value))}
+          value={number_of_children || ""}
+          onChange={(e) => setNumberOfChildren(Number(e.target.value))}
         />
         <input
           type="number"
           placeholder="Total Cost"
-          value={total_cost}
-          onChange={(e) => setTotalCost(parseFloat(e.target.value))}
+          value={total_cost || ""}
+          onChange={(e) => setTotalCost(Number(e.target.value))}
         />
         <input
           type="text"
@@ -158,8 +191,8 @@ const BookingCRUD = () => {
         <input
           type="number"
           placeholder="User ID"
-          value={user_id}
-          onChange={(e) => setUserId(parseInt(e.target.value))}
+          value={user_id || ""}
+          onChange={(e) => setUserId(Number(e.target.value))}
         />
         <input
           type="text"
@@ -167,6 +200,7 @@ const BookingCRUD = () => {
           value={user_name}
           onChange={(e) => setUserName(e.target.value)}
         />
+
         {editing ? (
           <button onClick={updateBooking}>Update Booking</button>
         ) : (
@@ -174,12 +208,14 @@ const BookingCRUD = () => {
         )}
       </div>
 
+      {/* Display the list of bookings */}
       <h2>Booking List</h2>
       <ul>
         {bookings.map((booking) => (
           <li key={booking.id}>
-            {booking.hotel_name} - {booking.number_of_rooms} rooms - {booking.number_of_adults} adults -{' '}
-            {booking.number_of_children} children
+            {booking.hotel_name} - {booking.number_of_rooms} rooms -{" "}
+            {booking.number_of_adults} adults - {booking.number_of_children}{" "}
+            children
             <button onClick={() => handleEdit(booking)}>Edit</button>
             <button onClick={() => deleteBooking(booking.id)}>Delete</button>
           </li>
