@@ -69,7 +69,11 @@ const BookingCRUD = () => {
   };
 
   const updateBooking = async () => {
-    if (!currentBooking) return;
+    if (!currentBooking || !currentBooking.id) {
+      console.error("No booking selected or invalid booking ID");
+      return;
+    }
+
     try {
       const response = await axios.put(`/api/booking/${currentBooking.id}`, {
         hotel_name,
@@ -91,7 +95,7 @@ const BookingCRUD = () => {
         );
         resetForm();
         setEditing(false);
-        setCurrentBooking(null); // Reset the current booking after update
+        setCurrentBooking(null);
       } else {
         console.error("Failed to update booking");
       }
@@ -142,89 +146,116 @@ const BookingCRUD = () => {
   };
 
   return (
-    <div>
-      <h1>Booking Management</h1>
+    <div className="max-w-4xl mx-auto p-6 bg-white shadow-lg rounded-lg">
+      <h1 className="text-3xl font-semibold text-center mb-6">Booking Management</h1>
 
       {/* Form to create or edit bookings */}
-      <div>
+      <div className="space-y-4">
         <input
           type="text"
           placeholder="Hotel Name"
           value={hotel_name}
           onChange={(e) => setHotelName(e.target.value)}
+          className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <input
           type="number"
           placeholder="Rooms"
           value={number_of_rooms || ""}
           onChange={(e) => setNumberOfRooms(Number(e.target.value))}
+          className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <input
           type="number"
           placeholder="Adults"
           value={number_of_adults || ""}
           onChange={(e) => setNumberOfAdults(Number(e.target.value))}
+          className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <input
           type="number"
           placeholder="Children"
           value={number_of_children || ""}
           onChange={(e) => setNumberOfChildren(Number(e.target.value))}
+          className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <input
           type="number"
           placeholder="Total Cost"
           value={total_cost || ""}
-          onChange={(e) => setTotalCost(Number(e.target.value))}
+          onChange={(e) => {
+            const value = e.target.value;
+            const numericValue = value === "" ? 0 : Number(value);
+            setTotalCost(numericValue);
+          }}
+          className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <input
-  type="number"
-  placeholder="Total Cost"
-  value={total_cost || ""}
-  onChange={(e) => {
-    const value = e.target.value;
-    const numericValue = value === "" ? 0 : Number(value); // Check for empty string and convert to number
-    setTotalCost(numericValue);
-  }}
-/>
-
-<input
-  type="email"
-  placeholder="Email"
-  value={email || ""}  // Ensure the email value is always a string
-  onChange={(e) => setEmail(e.target.value)} // Handle the email input properly
-/>
-
+          type="email"
+          placeholder="Email"
+          value={email || ""}
+          onChange={(e) => setEmail(e.target.value)}
+          className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
         <input
           type="number"
           placeholder="User ID"
           value={user_id || ""}
           onChange={(e) => setUserId(Number(e.target.value))}
+          className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <input
           type="text"
           placeholder="User Name"
           value={user_name}
           onChange={(e) => setUserName(e.target.value)}
+          className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
 
         {editing ? (
-          <button onClick={updateBooking}>Update Booking</button>
+          <button
+            onClick={updateBooking}
+            className="w-full p-3 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+          >
+            Update Booking
+          </button>
         ) : (
-          <button onClick={createBooking}>Create Booking</button>
+          <button
+            onClick={createBooking}
+            className="w-full p-3 bg-green-600 text-white rounded-md hover:bg-green-700"
+          >
+            Create Booking
+          </button>
         )}
       </div>
 
       {/* Display the list of bookings */}
-      <h2>Booking List</h2>
-      <ul>
+      <h2 className="text-2xl font-semibold mt-8 mb-4">Booking List</h2>
+      <ul className="space-y-4">
         {bookings.map((booking) => (
-          <li key={booking.id}>
-            {booking.hotel_name} - {booking.number_of_rooms} rooms -{" "}
-            {booking.number_of_adults} adults - {booking.number_of_children}{" "}
-            children
-            <button onClick={() => handleEdit(booking)}>Edit</button>
-            <button onClick={() => deleteBooking(booking.id)}>Delete</button>
+          <li
+            key={booking.id}
+            className="flex justify-between items-center p-4 border border-gray-300 rounded-md shadow-sm"
+          >
+            <div>
+              <p>
+                <strong>{booking.hotel_name}</strong> - {booking.number_of_rooms} rooms - {booking.number_of_adults} adults - {booking.number_of_children} children
+              </p>
+            </div>
+            <div>
+              <button
+                onClick={() => handleEdit(booking)}
+                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 mr-2"
+              >
+                Edit
+              </button>
+              <button
+                onClick={() => deleteBooking(booking.id)}
+                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+              >
+                Delete
+              </button>
+            </div>
           </li>
         ))}
       </ul>

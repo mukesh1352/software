@@ -1,92 +1,84 @@
 import { NextResponse } from 'next/server';
 import pool from '../../../lib/db'; // Using connection pool
 
-// ✅ Get all bookings
-export async function GET() {
+// ✅ Get a single booking by ID
+export async function GET(req: Request, context: { params: { id: string } }) {
+  const { id } = context.params; // Extract the ID from the URL path
+
   try {
-    const [rows] = await pool.query('SELECT * FROM bookings');
-    return NextResponse.json(rows, { status: 200 });
+    const query = 'SELECT * FROM bookings WHERE id = ?';
+    const [rows, fields]: [any[], any[]] = await pool.query(query, [id]);
+
+    if (Array.isArray(rows) && rows.length === 0) {
+      return NextResponse.json({ message: 'Booking not found' }, { status: 404 });
+    }
+
+    return NextResponse.json(rows[0], { status: 200 });
   } catch (error) {
-    return NextResponse.json({ message: 'Error fetching bookings', error: (error as Error).message }, { status: 500 });
+    return NextResponse.json({ message: 'Error fetching booking', error: (error as Error).message }, { status: 500 });
   }
 }
 
-// ✅ Create a new booking
-export async function POST(req: Request) {
-  try {
-    const { hotel_name, number_of_rooms, number_of_adults, number_of_children, total_cost, phone_number, email, user_id, user_name } = await req.json();
-
-    const query = `
-      INSERT INTO bookings (hotel_name, number_of_rooms, number_of_adults, number_of_children, total_cost, phone_number, email, user_id, user_name)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `;
-    const values = [hotel_name, number_of_rooms, number_of_adults, number_of_children, total_cost, phone_number, email, user_id, user_name];
-
-    const [result] = await pool.query(query, values);
-    return NextResponse.json({ id: (result as any).insertId, hotel_name, number_of_rooms, number_of_adults, number_of_children, total_cost, phone_number, email, user_id, user_name }, { status: 201 });
-  } catch (error) {
-    return NextResponse.json({ message: 'Error creating booking', error: (error as any).message }, { status: 500 });
-  }
-}
-
-// ✅ Update a booking
-// ✅ Update a booking
+// ✅ Update a booking by ID
 export async function PUT(req: Request, context: { params: { id: string } }) {
-  const { params } = context; // Correctly handle dynamic params
-  const id = params.id; // The dynamic `id` from the URL
-  
-  if (!id) {
-    return NextResponse.json({ message: 'Booking ID is required' }, { status: 400 });
-  }
-  
+  const { id } = context.params; // Extract the ID from the URL path
+
   try {
-    // Get the data from the request body
     const { hotel_name, number_of_rooms, number_of_adults, number_of_children, total_cost, phone_number, email, user_id, user_name } = await req.json();
 
-    // Validate the data
     if (!hotel_name || !number_of_rooms || !number_of_adults || !total_cost || !phone_number || !email || !user_id || !user_name) {
       return NextResponse.json({ message: 'Missing required fields' }, { status: 400 });
     }
 
-    // Prepare the update query
+    // Check if the booking exists before updating
+    const checkQuery = 'SELECT * FROM bookings WHERE id = ?';
+    const [existingBooking]: [any[], any[]] = await pool.query(checkQuery, [id]);
+
+    if (existingBooking.length === 0) {
+      return NextResponse.json({ message: 'Booking not found' }, { status: 404 });
+    }
+
+    // Update the booking
     const query = `
       UPDATE bookings
       SET hotel_name = ?, number_of_rooms = ?, number_of_adults = ?, number_of_children = ?, total_cost = ?, phone_number = ?, email = ?, user_id = ?, user_name = ?
       WHERE id = ?
     `;
-    
-    // Define the values to be inserted into the query
     const values = [hotel_name, number_of_rooms, number_of_adults, number_of_children, total_cost, phone_number, email, user_id, user_name, id];
 
-    // Execute the update query
     const [result] = await pool.query(query, values);
 
-    // Check if any row was affected, meaning the update was successful
     if ((result as any).affectedRows === 0) {
-      return NextResponse.json({ message: 'Booking not found or no changes made' }, { status: 404 });
+      return NextResponse.json({ message: 'No changes made' }, { status: 400 });
     }
 
-    // Return the updated booking details
     return NextResponse.json({ id, hotel_name, number_of_rooms, number_of_adults, number_of_children, total_cost, phone_number, email, user_id, user_name }, { status: 200 });
   } catch (error) {
-    // Handle unexpected errors
-    return NextResponse.json({ message: 'Error updating booking', error: (error as any).message }, { status: 500 });
+    console.error('Error updating booking', error);
+    return NextResponse.json({ message: 'Failed to update booking', error: (error as Error).message }, { status: 500 });
   }
 }
-  
 
-// ✅ Delete a booking
-// ✅ Delete a booking
+// ✅ Delete a booking by ID
 export async function DELETE(req: Request, { params }: { params: { id: string } }) {
-    const id = params.id;  // Extract id from URL parameters
-    
-    try {
-      const query = 'DELETE FROM bookings WHERE id = ?';
-      await pool.query(query, [id]); // Delete the booking with the specific ID
-  
-      return NextResponse.json({ message: 'Booking deleted' }, { status: 200 });
-    } catch (error) {
-      return NextResponse.json({ message: 'Error deleting booking', error: (error as Error).message }, { status: 500 });
+  const { id } = params; // Extract the ID from the URL path
+
+  try {
+    // Check if the booking exists before deleting
+    const checkQuery = 'SELECT * FROM bookings WHERE id = ?';
+    const [existingBooking]: [any[], any[]] = await pool.query(checkQuery, [id]);
+
+    if (Array.isArray(existingBooking) && existingBooking.length === 0) {
+      return NextResponse.json({ message: 'Booking not found' }, { status: 404 });
     }
+
+    // Delete the booking
+    const query = 'DELETE FROM bookings WHERE id = ?';
+    await pool.query(query, [id]);
+
+    return NextResponse.json({ message: 'Booking deleted' }, { status: 200 });
+  } catch (error) {
+    console.error('Error deleting booking', error);
+    return NextResponse.json({ message: 'Error deleting booking', error: (error as Error).message }, { status: 500 });
   }
-  
+}
