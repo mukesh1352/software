@@ -10,8 +10,6 @@ interface Booking {
   number_of_adults: number;
   number_of_children: number;
   total_cost: number;
-  phone_number: string;
-  email: string;
   user_id: number;
   user_name: string;
 }
@@ -22,9 +20,6 @@ const BookingCRUD = () => {
   const [number_of_rooms, setNumberOfRooms] = useState<number>(0);
   const [number_of_adults, setNumberOfAdults] = useState<number>(0);
   const [number_of_children, setNumberOfChildren] = useState<number>(0);
-  const [total_cost, setTotalCost] = useState<number>(0);
-  const [phone_number, setPhoneNumber] = useState<string>("");
-  const [email, setEmail] = useState<string>("");
   const [user_id, setUserId] = useState<number>(0);
   const [user_name, setUserName] = useState<string>("");
   const [editing, setEditing] = useState<boolean>(false);
@@ -50,9 +45,6 @@ const BookingCRUD = () => {
         number_of_rooms,
         number_of_adults,
         number_of_children,
-        total_cost,
-        phone_number,
-        email,
         user_id,
         user_name,
       });
@@ -80,9 +72,6 @@ const BookingCRUD = () => {
         number_of_rooms,
         number_of_adults,
         number_of_children,
-        total_cost,
-        phone_number,
-        email,
         user_id,
         user_name,
       });
@@ -126,9 +115,6 @@ const BookingCRUD = () => {
     setNumberOfRooms(booking.number_of_rooms);
     setNumberOfAdults(booking.number_of_adults);
     setNumberOfChildren(booking.number_of_children);
-    setTotalCost(booking.total_cost);
-    setPhoneNumber(booking.phone_number);
-    setEmail(booking.email);
     setUserId(booking.user_id);
     setUserName(booking.user_name);
   };
@@ -138,9 +124,6 @@ const BookingCRUD = () => {
     setNumberOfRooms(0);
     setNumberOfAdults(0);
     setNumberOfChildren(0);
-    setTotalCost(0);
-    setPhoneNumber("");
-    setEmail("");
     setUserId(0);
     setUserName("");
   };
@@ -179,24 +162,7 @@ const BookingCRUD = () => {
           onChange={(e) => setNumberOfChildren(Number(e.target.value))}
           className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
-        <input
-          type="number"
-          placeholder="Total Cost"
-          value={total_cost || ""}
-          onChange={(e) => {
-            const value = e.target.value;
-            const numericValue = value === "" ? 0 : Number(value);
-            setTotalCost(numericValue);
-          }}
-          className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-        <input
-          type="email"
-          placeholder="Email"
-          value={email || ""}
-          onChange={(e) => setEmail(e.target.value)}
-          className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
+        {/* Removed Total Cost field */}
         <input
           type="number"
           placeholder="User ID"
