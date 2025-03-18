@@ -38,7 +38,7 @@ const BookingCRUD = () => {
     return rooms * 100 + adults * 50 + children * 30;
   };
 
-  // Handle form input changes
+  //NOTE: Handle form input changes
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     const updatedValue = name.includes("number") ? Number(value) : value;
@@ -59,7 +59,7 @@ const BookingCRUD = () => {
     });
   };
 
-  // Handle form submission (Create / Update)
+  //NOTE: Implement form submission handling (Create / Update)
   const handleSubmit = async () => {
     try {
       const response = editing
@@ -77,7 +77,7 @@ const BookingCRUD = () => {
     }
   };
 
-  // Handle edit action
+  // FIXME: Handling the edit functionality
   const handleEdit = (booking: Booking) => {
     setEditing(true);
     setCurrentBooking(booking);

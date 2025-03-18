@@ -6,6 +6,7 @@ import { auth, googleProvider } from "../firebaseConfig";
 import { signInWithPopup } from "firebase/auth";
 import Image from "next/image";
 
+//TODO: Importing the admin page
 export default function LoginPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -13,7 +14,7 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  const API_URL = "http://localhost:8000";
+  const API_URL = "http://localhost:8000"; //
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
