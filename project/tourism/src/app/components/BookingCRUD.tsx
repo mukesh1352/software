@@ -61,7 +61,8 @@ const BookingCRUD = () => {
       if (editing && currentBookingId !== null) {
         await axios.put(`/api/booking/${currentBookingId}`, formData);
       } else {
-        await axios.post("/api/booking", formData);
+        // This block can be removed if you don't want to create new bookings.
+        // await axios.post("/api/booking", formData);
       }
       fetchBookings();
       resetForm();
@@ -103,34 +104,38 @@ const BookingCRUD = () => {
     <div className="max-w-4xl mx-auto p-6 bg-white shadow-lg rounded-lg">
       <h1 className="text-3xl font-semibold text-center mb-6">Booking Management</h1>
       <div className="space-y-4">
-        {["hotel_name", "number_of_rooms", "number_of_adults", "number_of_children", "user_id", "user_name", "cost_per_room"].map((field) => (
-          <div key={field}>
-            <label className="block text-gray-700 font-medium">{field.replace("_", " ").toUpperCase()}</label>
-            <input
-              type={field.includes("number") || field === "cost_per_room" ? "number" : "text"}
-              name={field}
-              value={formData[field as keyof Booking] || ""}
-              onChange={handleChange}
-              className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-        ))}
-        <div>
-          <label className="block text-gray-700 font-medium">Total Cost</label>
-          <input
-            type="number"
-            name="total_cost"
-            value={formData.total_cost || 0}
-            className="w-full p-3 border border-gray-300 rounded-md bg-gray-200 cursor-not-allowed"
-            readOnly
-          />
-        </div>
-        <button
-          onClick={handleSubmit}
-          className={`w-full p-3 ${editing ? "bg-blue-600" : "bg-green-600"} text-white rounded-md hover:opacity-90`}
-        >
-          {editing ? "Update Booking" : "Create Booking"}
-        </button>
+        {editing && (
+          <>
+            {["hotel_name", "number_of_rooms", "number_of_adults", "number_of_children", "user_id", "user_name", "cost_per_room"].map((field) => (
+              <div key={field}>
+                <label className="block text-gray-700 font-medium">{field.replace("_", " ").toUpperCase()}</label>
+                <input
+                  type={field.includes("number") || field === "cost_per_room" ? "number" : "text"}
+                  name={field}
+                  value={formData[field as keyof Booking] || ""}
+                  onChange={handleChange}
+                  className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+            ))}
+            <div>
+              <label className="block text-gray-700 font-medium">Total Cost</label>
+              <input
+                type="number"
+                name="total_cost"
+                value={formData.total_cost || 0}
+                className="w-full p-3 border border-gray-300 rounded-md bg-gray-200 cursor-not-allowed"
+                readOnly
+              />
+            </div>
+            <button
+              onClick={handleSubmit}
+              className="w-full p-3 bg-blue-600 text-white rounded-md hover:opacity-90"
+            >
+              Update Booking
+            </button>
+          </>
+        )}
       </div>
       <div className="mt-6">
         <h2 className="text-xl font-semibold mb-2">Existing Bookings</h2>
