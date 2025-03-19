@@ -1,4 +1,3 @@
-"use client";
 import { useState, useEffect } from "react";
 import axios from "axios";
 
@@ -10,12 +9,15 @@ interface Booking {
   number_of_children: number;
   user_id: number;
   user_name: string;
+  cost_per_room: number;
   total_cost: number;
 }
 
 const BookingCRUD = () => {
   const [bookings, setBookings] = useState<Booking[]>([]);
-  const [formData, setFormData] = useState<Partial<Booking>>({});
+  const [formData, setFormData] = useState<Partial<Booking>>({
+    cost_per_room: 100, // Default value for cost per room, can be updated if needed
+  });
   const [editing, setEditing] = useState(false);
   const [currentBooking, setCurrentBooking] = useState<Booking | null>(null);
 
@@ -23,7 +25,7 @@ const BookingCRUD = () => {
     fetchBookings();
   }, []);
 
-  // Fetch existing bookings from API
+  // Fetch existing bookings
   const fetchBookings = async () => {
     try {
       const response = await axios.get("/api/booking");
@@ -34,11 +36,11 @@ const BookingCRUD = () => {
   };
 
   // Calculate total cost dynamically
-  const calculateTotalCost = (rooms: number, adults: number, children: number) => {
-    return rooms + adults + children;
+  const calculateTotalCost = (rooms: number, adults: number, children: number, costPerRoom: number) => {
+    return rooms * costPerRoom + adults * 50 + children * 30;
   };
 
-  //NOTE: Handle form input changes
+  // Handle form input changes
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     const updatedValue = name.includes("number") ? Number(value) : value;
@@ -46,12 +48,13 @@ const BookingCRUD = () => {
     setFormData((prev) => {
       const updatedForm = { ...prev, [name]: updatedValue };
 
-      // Dynamically update total cost if relevant fields change
+      // Update total cost dynamically when necessary
       if (["number_of_rooms", "number_of_adults", "number_of_children"].includes(name)) {
         updatedForm.total_cost = calculateTotalCost(
           updatedForm.number_of_rooms || 0,
           updatedForm.number_of_adults || 0,
-          updatedForm.number_of_children || 0
+          updatedForm.number_of_children || 0,
+          updatedForm.cost_per_room || 100
         );
       }
 
@@ -59,13 +62,15 @@ const BookingCRUD = () => {
     });
   };
 
-  //NOTE: Implement form submission handling (Create / Update)
+  // Handle form submission (create or update booking)
   const handleSubmit = async () => {
+    console.log("Submitting formData:", formData);
+
     try {
       const response = editing
         ? await axios.put(`/api/booking/${currentBooking?.id}`, formData)
         : await axios.post("/api/booking", formData);
-      
+
       if (response.status === 200 || response.status === 201) {
         fetchBookings();
         resetForm();
@@ -77,23 +82,24 @@ const BookingCRUD = () => {
     }
   };
 
-  // FIXME: Handling the edit functionality
+  // Handle edit booking
   const handleEdit = (booking: Booking) => {
     setEditing(true);
     setCurrentBooking(booking);
 
-    // Set form data with recalculated total cost
+    // Ensure correct total cost is set when editing
     setFormData({
       ...booking,
       total_cost: calculateTotalCost(
         booking.number_of_rooms,
         booking.number_of_adults,
-        booking.number_of_children
+        booking.number_of_children,
+        booking.cost_per_room
       ),
     });
   };
 
-  // Handle delete action
+  // Handle delete booking
   const handleDelete = async (id: number) => {
     try {
       await axios.delete(`/api/booking/${id}`);
@@ -103,7 +109,6 @@ const BookingCRUD = () => {
     }
   };
 
-  // Reset form
   const resetForm = () => {
     setFormData({});
     setEditing(false);
@@ -121,6 +126,7 @@ const BookingCRUD = () => {
           { label: "Number of Children", name: "number_of_children", type: "number" },
           { label: "User ID", name: "user_id", type: "number" },
           { label: "User Name", name: "user_name", type: "text" },
+          { label: "Cost per Room", name: "cost_per_room", type: "number" },  // Add cost per room
         ].map((field) => (
           <div key={field.name}>
             <label className="block text-gray-700 font-medium">{field.label}</label>
@@ -134,7 +140,6 @@ const BookingCRUD = () => {
           </div>
         ))}
 
-        {/* Total Cost (Read-Only) */}
         <div>
           <label className="block text-gray-700 font-medium">Total Cost</label>
           <input
@@ -153,34 +158,6 @@ const BookingCRUD = () => {
           {editing ? "Update Booking" : "Create Booking"}
         </button>
       </div>
-
-      <h2 className="text-2xl font-semibold mt-8 mb-4">Booking List</h2>
-      <ul className="space-y-4">
-        {bookings.map((booking) => (
-          <li
-            key={booking.id}
-            className="flex justify-between items-center p-4 border border-gray-300 rounded-md shadow-sm"
-          >
-            <div>
-              <p><strong>{booking.hotel_name}</strong> - {booking.number_of_rooms} rooms - {booking.number_of_adults} adults - {booking.number_of_children} children - 💰 ${booking.total_cost}</p>
-            </div>
-            <div>
-              <button
-                onClick={() => handleEdit(booking)}
-                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 mr-2"
-              >
-                Edit
-              </button>
-              <button
-                onClick={() => handleDelete(booking.id)}
-                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
-              >
-                Delete
-              </button>
-            </div>
-          </li>
-        ))}
-      </ul>
     </div>
   );
 };
