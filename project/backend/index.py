@@ -4,15 +4,15 @@ from pydantic import BaseModel
 import mysql.connector
 from fastapi.middleware.cors import CORSMiddleware
 from mysql.connector import pooling
+import bcrypt
 import uuid
-from typing import Optional
 
 app = FastAPI()
 
-# Allow frontend requests
+# Allow frontend requests (Update for production)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # Adjust for production
+    allow_origins=["http://localhost:3000"],  
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -29,6 +29,7 @@ db_config = {
 connection_pool = pooling.MySQLConnectionPool(pool_name="mypool", pool_size=10, **db_config)
 
 def get_db_connection():
+    """Get a database connection from the pool."""
     try:
         return connection_pool.get_connection()
     except mysql.connector.Error as e:
@@ -49,15 +50,16 @@ class Booking(BaseModel):
     cost_per_room: float 
     user_id: int
     user_name: str
+
 # Hash password function
 def hash_password(password: str) -> str:
-    import bcrypt
+    """Hash password securely using bcrypt."""
     salt = bcrypt.gensalt()
     return bcrypt.hashpw(password.encode("utf-8"), salt).decode("utf-8")
 
 # Verify password function
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    import bcrypt
+    """Verify password against hashed version."""
     return bcrypt.checkpw(plain_password.encode("utf-8"), hashed_password.encode("utf-8"))
 
 # Signup endpoint
@@ -83,6 +85,9 @@ def signup(user: User):
         cursor.close()
         conn.close()
 
+# Session storage
+sessions = {}
+
 # Login endpoint
 @app.post("/login")
 def login(user: User):
@@ -92,16 +97,18 @@ def login(user: User):
 
     cursor = conn.cursor()
     try:
-        cursor.execute("SELECT password FROM users WHERE username = %s", (user.username,))
+        cursor.execute("SELECT id, password FROM users WHERE username = %s", (user.username,))
         result = cursor.fetchone()
-        if not result or not verify_password(user.password, result[0]):
+        if not result or not verify_password(user.password, result[1]):
             raise HTTPException(status_code=401, detail="Invalid credentials")
+        
+        user_id = result[0]
         
         # Create a session
         session_id = str(uuid.uuid4())
         sessions[session_id] = user.username
 
-        return {"message": "Login successful", "session_id": session_id, "username": user.username}
+        return {"message": "Login successful", "session_id": session_id, "username": user.username, "user_id": user_id}
     except mysql.connector.Error as e:
         return JSONResponse(status_code=500, content={"detail": f"Database Error: {str(e)}"})
     finally:
@@ -109,9 +116,11 @@ def login(user: User):
         conn.close()
 
 # Function to calculate total cost
-def calculate_total_cost(number_of_rooms: int, number_of_adults: int, cost_per_room: float) -> float:
-    return number_of_rooms * cost_per_room * number_of_adults
+def calculate_total_cost(number_of_rooms: int, cost_per_room: float) -> float:
+    """Calculate total cost of booking."""
+    return number_of_rooms * cost_per_room
 
+# Booking endpoint
 @app.post("/bookings")
 async def create_booking(booking: Booking):
     conn = get_db_connection()
@@ -121,9 +130,9 @@ async def create_booking(booking: Booking):
     cursor = conn.cursor()
     try:
         # Calculate total cost
-        total_cost = calculate_total_cost(booking.number_of_rooms, booking.number_of_adults, booking.cost_per_room)
+        total_cost = calculate_total_cost(booking.number_of_rooms, booking.cost_per_room)
         
-        # Insert booking into the database including user_name
+        # Insert booking into the database
         cursor.execute(
             "INSERT INTO bookings (hotel_name, number_of_rooms, number_of_adults, number_of_children, total_cost, user_id, user_name) "
             "VALUES (%s, %s, %s, %s, %s, %s, %s)",
@@ -134,7 +143,7 @@ async def create_booking(booking: Booking):
                 booking.number_of_children,
                 total_cost,
                 booking.user_id,
-                booking.user_name,  # Insert user_name
+                booking.user_name,
             )
         )
         conn.commit()
@@ -144,7 +153,6 @@ async def create_booking(booking: Booking):
     finally:
         cursor.close()
         conn.close()
-
 
 # Start the FastAPI server
 if __name__ == "__main__":
