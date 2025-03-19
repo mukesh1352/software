@@ -83,6 +83,8 @@ def signup(user: User):
         cursor.close()
         conn.close()
 
+sessions = {}  # Global variable to store sessions
+
 # Login endpoint
 @app.post("/login")
 def login(user: User):
