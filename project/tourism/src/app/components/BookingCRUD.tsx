@@ -35,7 +35,7 @@ const BookingCRUD = () => {
 
   // Calculate total cost dynamically
   const calculateTotalCost = (rooms: number, adults: number, children: number) => {
-    return rooms * 100 + adults * 50 + children * 30;
+    return rooms + adults + children;
   };
 
   //NOTE: Handle form input changes
