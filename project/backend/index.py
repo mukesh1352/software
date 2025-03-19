@@ -49,6 +49,7 @@ class Booking(BaseModel):
     cost_per_room: float 
     user_id: int
     user_name: str
+
 # Hash password function
 def hash_password(password: str) -> str:
     import bcrypt
@@ -146,7 +147,6 @@ async def create_booking(booking: Booking):
     finally:
         cursor.close()
         conn.close()
-
 
 # Start the FastAPI server
 if __name__ == "__main__":

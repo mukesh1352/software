@@ -1,17 +1,20 @@
 import pytest
 from fastapi.testclient import TestClient
 from index import app
+import uuid
 
 # Setup TestClient
 client = TestClient(app)
 
+# Fixture for unique mock user
 @pytest.fixture
 def mock_user():
     return {
-        "username": "testuser",
+        "username": f"testuser_{uuid.uuid4()}",  # Generate unique username
         "password": "testpassword"
     }
 
+# Fixture for mock booking
 @pytest.fixture
 def mock_booking():
     return {
@@ -27,6 +30,8 @@ def mock_booking():
 # Test signup endpoint
 def test_signup(mock_user):
     response = client.post("/signup", json=mock_user)
+    print(response.status_code)
+    print(response.json())  # Debugging the response message
     assert response.status_code == 200
     assert response.json() == {"message": "User signed up successfully"}
 
@@ -62,12 +67,17 @@ def test_create_booking_missing_field(mock_booking):
     assert response.status_code == 422  # Unprocessable Entity
 
 # Test database connection error handling (simulate failure)
-def test_database_error_handling(mock_user):
-    # This would need a specific configuration to mock the DB connection failure
-    # A possible mock could involve patching the database connection function.
-    with pytest.raises(Exception):
-        # Simulate DB error
-        response = client.post("/signup", json=mock_user)
-        assert response.status_code == 500
+from unittest.mock import patch
 
-# Additional test cases could include verifying edge cases like incorrect input data, large values, etc.
+@patch("index.get_db_connection", return_value=None)  # Simulate a DB connection failure by returning None
+def test_database_error_handling(mock_db):
+    mock_user = {
+        "username": f"testuser_{uuid.uuid4()}",  # Use unique username
+        "password": "testpassword"
+    }
+    
+    # Simulating DB failure by mocking the connection to return None
+    response = client.post("/signup", json=mock_user)
+    
+    assert response.status_code == 500  # Internal Server Error
+    assert response.json() == {"detail": "Database connection failed"}
