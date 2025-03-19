@@ -116,11 +116,11 @@ def login(user: User):
         conn.close()
 
 # Function to calculate total cost
-def calculate_total_cost(number_of_rooms: int, cost_per_room: float) -> float:
-    """Calculate total cost of booking."""
-    return number_of_rooms * cost_per_room
+def calculate_total_cost(number_of_rooms: int, number_of_adults: int, number_of_children: int) -> float:
+    """Calculate total cost of booking (aligned with frontend)."""
+    return number_of_rooms * 100 + number_of_adults * 50 + number_of_children * 30
 
-# Booking endpoint
+
 @app.post("/bookings")
 async def create_booking(booking: Booking):
     conn = get_db_connection()
@@ -129,8 +129,10 @@ async def create_booking(booking: Booking):
 
     cursor = conn.cursor()
     try:
-        # Calculate total cost
-        total_cost = calculate_total_cost(booking.number_of_rooms, booking.cost_per_room)
+        # Calculate total cost using the correct formula
+        total_cost = calculate_total_cost(
+            booking.number_of_rooms, booking.number_of_adults, booking.number_of_children
+        )
         
         # Insert booking into the database
         cursor.execute(
@@ -148,11 +150,14 @@ async def create_booking(booking: Booking):
         )
         conn.commit()
         return JSONResponse(status_code=200, content={"message": "Booking created successfully", "total_cost": total_cost})
+    
     except mysql.connector.Error as e:
         return JSONResponse(status_code=500, content={"detail": f"Database Error: {str(e)}"})
+    
     finally:
         cursor.close()
         conn.close()
+
 
 # Start the FastAPI server
 if __name__ == "__main__":
