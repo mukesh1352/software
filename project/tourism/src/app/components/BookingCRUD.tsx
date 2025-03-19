@@ -60,9 +60,6 @@ const BookingCRUD = () => {
     try {
       if (editing && currentBookingId !== null) {
         await axios.put(`/api/booking/${currentBookingId}`, formData);
-      } else {
-        // This block can be removed if you don't want to create new bookings.
-        // await axios.post("/api/booking", formData);
       }
       fetchBookings();
       resetForm();
@@ -101,73 +98,95 @@ const BookingCRUD = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-white shadow-lg rounded-lg">
-      <h1 className="text-3xl font-semibold text-center mb-6">Booking Management</h1>
-      <div className="space-y-4">
-        {editing && (
-          <>
-            {["hotel_name", "number_of_rooms", "number_of_adults", "number_of_children", "user_id", "user_name", "cost_per_room"].map((field) => (
-              <div key={field}>
-                <label className="block text-gray-700 font-medium">{field.replace("_", " ").toUpperCase()}</label>
+    <div className="min-h-screen bg-gradient-to-r from-blue-500 via-purple-600 to-pink-500 flex items-center justify-center">
+      <div className="max-w-4xl w-full p-8 bg-white rounded-xl shadow-2xl space-y-6">
+        <h1 className="text-4xl font-extrabold text-center text-gray-900 mb-8">Booking Management</h1>
+
+        {/* Form Section */}
+        <div className="space-y-6">
+          {editing && (
+            <div className="space-y-4">
+              {["hotel_name", "number_of_rooms", "number_of_adults", "number_of_children", "user_id", "user_name", "cost_per_room"].map((field) => (
+                <div key={field} className="mb-4">
+                  <label htmlFor={field} className="block text-lg font-semibold text-gray-700">
+                    {field.replace("_", " ").toUpperCase()}
+                  </label>
+                  <input
+                    id={field}
+                    name={field}
+                    type={field.includes("number") || field === "cost_per_room" ? "number" : "text"}
+                    value={formData[field as keyof Booking] || ""}
+                    onChange={handleChange}
+                    className="w-full p-4 mt-2 bg-gray-100 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  />
+                </div>
+              ))}
+              <div className="mb-6">
+                <label htmlFor="total_cost" className="block text-lg font-semibold text-gray-700">Total Cost</label>
                 <input
-                  type={field.includes("number") || field === "cost_per_room" ? "number" : "text"}
-                  name={field}
-                  value={formData[field as keyof Booking] || ""}
-                  onChange={handleChange}
-                  className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  id="total_cost"
+                  name="total_cost"
+                  type="number"
+                  value={formData.total_cost || 0}
+                  readOnly
+                  className="w-full p-4 mt-2 bg-gray-200 border-2 border-gray-300 rounded-lg cursor-not-allowed"
                 />
               </div>
-            ))}
-            <div>
-              <label className="block text-gray-700 font-medium">Total Cost</label>
-              <input
-                type="number"
-                name="total_cost"
-                value={formData.total_cost || 0}
-                className="w-full p-3 border border-gray-300 rounded-md bg-gray-200 cursor-not-allowed"
-                readOnly
-              />
+              <button
+                onClick={handleSubmit}
+                className="w-full p-4 bg-gradient-to-r from-blue-500 to-purple-500 text-white text-lg font-semibold rounded-lg shadow-md hover:bg-gradient-to-r hover:from-blue-600 hover:to-purple-600 transition duration-300"
+              >
+                Update Booking
+              </button>
             </div>
-            <button
-              onClick={handleSubmit}
-              className="w-full p-3 bg-blue-600 text-white rounded-md hover:opacity-90"
-            >
-              Update Booking
-            </button>
-          </>
-        )}
-      </div>
-      <div className="mt-6">
-        <h2 className="text-xl font-semibold mb-2">Existing Bookings</h2>
-        <table className="w-full border-collapse border border-gray-300 mt-4">
-          <thead>
-            <tr className="bg-gray-100">
-              <th className="border p-2">Hotel</th>
-              <th className="border p-2">Rooms</th>
-              <th className="border p-2">Adults</th>
-              <th className="border p-2">Children</th>
-              <th className="border p-2">User</th>
-              <th className="border p-2">Total Cost</th>
-              <th className="border p-2">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {bookings.map((booking) => (
-              <tr key={booking.id} className="text-center">
-                <td className="border p-2">{booking.hotel_name}</td>
-                <td className="border p-2">{booking.number_of_rooms}</td>
-                <td className="border p-2">{booking.number_of_adults}</td>
-                <td className="border p-2">{booking.number_of_children}</td>
-                <td className="border p-2">{booking.user_name}</td>
-                <td className="border p-2">${booking.total_cost}</td>
-                <td className="border p-2">
-                  <button onClick={() => handleEdit(booking)} className="px-3 py-1 bg-blue-500 text-white rounded mr-2">Edit</button>
-                  <button onClick={() => handleDelete(booking.id)} className="px-3 py-1 bg-red-500 text-white rounded">Delete</button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+          )}
+        </div>
+
+        {/* Existing Bookings Table */}
+        <div className="mt-12 bg-gray-50 rounded-xl shadow-xl p-6">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">Existing Bookings</h2>
+          <div className="overflow-x-auto rounded-lg shadow-lg">
+            <table className="w-full table-auto text-gray-700">
+              <thead className="bg-gradient-to-r from-blue-600 to-purple-700 text-lg text-white">
+                <tr>
+                  <th className="p-4">Hotel</th>
+                  <th className="p-4">Rooms</th>
+                  <th className="p-4">Adults</th>
+                  <th className="p-4">Children</th>
+                  <th className="p-4">User</th>
+                  <th className="p-4">Total Cost</th>
+                  <th className="p-4">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {bookings.map((booking) => (
+                  <tr key={booking.id} className="bg-gray-100 hover:bg-gray-200 transition duration-300">
+                    <td className="p-4">{booking.hotel_name}</td>
+                    <td className="p-4">{booking.number_of_rooms}</td>
+                    <td className="p-4">{booking.number_of_adults}</td>
+                    <td className="p-4">{booking.number_of_children}</td>
+                    <td className="p-4">{booking.user_name}</td>
+                    <td className="p-4">${booking.total_cost}</td>
+                    <td className="p-4 flex space-x-2">
+                      <button
+                        onClick={() => handleEdit(booking)}
+                        className="px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg hover:bg-gradient-to-r hover:from-blue-600 hover:to-purple-600 transition duration-300"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDelete(booking.id)}
+                        className="px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-lg hover:bg-gradient-to-r hover:from-red-600 hover:to-red-700 transition duration-300"
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </div>
   );
