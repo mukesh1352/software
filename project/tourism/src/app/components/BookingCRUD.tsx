@@ -134,17 +134,35 @@ const BookingCRUD = () => {
       </div>
       <div className="mt-6">
         <h2 className="text-xl font-semibold mb-2">Existing Bookings</h2>
-        <ul>
-          {bookings.map((booking) => (
-            <li key={booking.id} className="flex justify-between p-2 border-b">
-              <span>{booking.hotel_name} - ${booking.total_cost}</span>
-              <div>
-                <button onClick={() => handleEdit(booking)} className="px-3 py-1 bg-blue-500 text-white rounded mr-2">Edit</button>
-                <button onClick={() => handleDelete(booking.id)} className="px-3 py-1 bg-red-500 text-white rounded">Delete</button>
-              </div>
-            </li>
-          ))}
-        </ul>
+        <table className="w-full border-collapse border border-gray-300 mt-4">
+          <thead>
+            <tr className="bg-gray-100">
+              <th className="border p-2">Hotel</th>
+              <th className="border p-2">Rooms</th>
+              <th className="border p-2">Adults</th>
+              <th className="border p-2">Children</th>
+              <th className="border p-2">User</th>
+              <th className="border p-2">Total Cost</th>
+              <th className="border p-2">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {bookings.map((booking) => (
+              <tr key={booking.id} className="text-center">
+                <td className="border p-2">{booking.hotel_name}</td>
+                <td className="border p-2">{booking.number_of_rooms}</td>
+                <td className="border p-2">{booking.number_of_adults}</td>
+                <td className="border p-2">{booking.number_of_children}</td>
+                <td className="border p-2">{booking.user_name}</td>
+                <td className="border p-2">${booking.total_cost}</td>
+                <td className="border p-2">
+                  <button onClick={() => handleEdit(booking)} className="px-3 py-1 bg-blue-500 text-white rounded mr-2">Edit</button>
+                  <button onClick={() => handleDelete(booking.id)} className="px-3 py-1 bg-red-500 text-white rounded">Delete</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );
