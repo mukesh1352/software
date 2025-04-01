@@ -495,7 +495,7 @@ export function TourismPage() {
               <SelectTrigger className="bg-white">
                 <SelectValue placeholder="Select a location" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-white text-black">
                 {Object.keys(tourismData).map((location) => (
                   <SelectItem key={location} value={location}>
                     {location}
