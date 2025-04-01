@@ -1,7 +1,5 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import Head from 'next/head';
-import axios from 'axios';
 
 const TravelPage = () => { 
   const [formData, setFormData] = useState({
