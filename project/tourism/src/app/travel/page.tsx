@@ -993,7 +993,7 @@ const TravelPage = () => {
                 <ul className="tabs clearfix" data-tabgroup="third-tab-group">
                   {[
                     { id: "livingroom", label: "Living Room" },
-                    { id: "suitroom", label: "Suit Room" },
+                    // { id: "suitroom", label: "Suit Room" },
                     { id: "swimingpool", label: "Swiming Pool" },
                     { id: "massage", label: "Massage Service" },
                     { id: "fitness", label: "Fitness Life" },
@@ -1020,44 +1020,45 @@ const TravelPage = () => {
                 <div id={selectedService}>
                   {selectedService === "livingroom" && (
                     <div className="text-content">
-                      <iframe width="100%" height="400px" src="https://www.youtube.com/embed/rMxTreSFMgE"></iframe>
+                      <iframe width="100%" height="400px" src="https://www.youtube.com/watch?v=ke7Z8rWXOCM"></iframe>
                     </div>
                   )}
                   {selectedService === "suitroom" && (
-                    <div className="row">
-                      <div className="col-md-12">
-                        <div id="owl-suiteroom" className="owl-carousel owl-theme">
-                          <div className="item">
-                            <div className="suiteroom-item">
-                              <img src="template/img/suite-02.jpg" alt="" />
-                              <div className="text-content">
-                                <h4>Clean And Relaxing Room</h4>
-                                <span>Aurora Resort</span>
-                              </div>
-                            </div>
-                          </div>
-                          <div className="item">
-                            <div className="suiteroom-item">
-                              <img src="template/img/suite-01.jpg" alt="" />
-                              <div className="text-content">
-                                <h4>Special Suite Room TV</h4>
-                                <span>Khao Yai Hotel</span>
-                              </div>
-                            </div>
-                          </div>
-                          <div className="item">
-                            <div className="suiteroom-item">
-                              <img src="template/img/suite-03.jpg" alt="" />
-                              <div className="text-content">
-                                <h4>The Best Sitting</h4>
-                                <span>Hotel Grand</span>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  )}
+  <div className="row">
+    <div className="col-md-12">
+      <div id="owl-suiteroom" className="owl-carousel owl-theme">
+        <div className="item">
+          <div className="suiteroom-item">
+            <img src="template/img/suite-01.jpg" alt="Clean and Relaxing Room" />
+            <div className="text-content">
+              <h4>Clean And Relaxing Room</h4>
+              <span>Aurora Resort</span>
+            </div>
+          </div>
+        </div>
+        <div className="item">
+          <div className="suiteroom-item">
+            <img src="template/img/suite-02.jpg" alt="Special Suite Room TV" />
+            <div className="text-content">
+              <h4>Special Suite Room TV</h4>
+              <span>Khao Yai Hotel</span>
+            </div>
+          </div>
+        </div>
+        <div className="item">
+          <div className="suiteroom-item">
+            <img src="template/img/suite-03.jpg" alt="The Best Sitting Area" />
+            <div className="text-content">
+              <h4>The Best Sitting</h4>
+              <span>Hotel Grand</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
+
                   {selectedService === "swimingpool" && (
                     <>
                       <img src="template/img/swiming-pool.jpg" alt="" />
@@ -1116,7 +1117,7 @@ const TravelPage = () => {
           </div>
         </div>
       </div>
-      <section id="most-visited">
+      {/* <section id="most-visited">
         <div className="container">
           <div className="row">
             <div className="col-md-12">
@@ -1220,7 +1221,7 @@ const TravelPage = () => {
             </div>
           </div>
         </div>
-      </section>
+      </section> */}
       <footer>
         <div className="container">
           <div className="row">

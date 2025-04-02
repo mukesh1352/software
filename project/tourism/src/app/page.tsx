@@ -77,7 +77,7 @@ export default function Home() {
         <ImageGallery2 />
 
         {/* Travels Button */}
-        <Link href="/hotels">
+        <Link href="/travel">
           <button className="mt-6 px-6 py-3 bg-green-600 text-white font-semibold text-lg rounded-lg shadow-md hover:bg-green-700 transition">
             View Travels
           </button>
