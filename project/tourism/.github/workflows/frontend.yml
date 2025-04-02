@@ -9,17 +9,20 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./tourism  # Matches your local directory structure
 
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Verify project files
+      - name: Verify project structure
         run: |
           echo "Current directory: $(pwd)"
           ls -la
           if [ ! -f "package.json" ]; then
-            echo "::error::package.json not found in repository root!"
+            echo "::error::package.json not found!"
             exit 1
           fi
 
