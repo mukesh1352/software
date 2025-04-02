@@ -3,7 +3,7 @@ name: Build and Deploy
 on:
   push:
     branches:
-      - main  # Adjust branch name as needed
+      - main
   pull_request:
     branches:
       - main
@@ -16,34 +16,28 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set working directory
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20  # Change to match your project’s Node.js version
+
+      - name: Set Working Directory
         run: echo "WORKING_DIR=project/tourism" >> $GITHUB_ENV
 
-      - name: Detect package manager
+      - name: Install Dependencies with npm
         run: |
           cd $WORKING_DIR
-          if [ -f "yarn.lock" ]; then
-            echo "manager=yarn" >> $GITHUB_ENV
-            echo "command=install" >> $GITHUB_ENV
-            echo "runner=yarn" >> $GITHUB_ENV
-          elif [ -f "package.json" ]; then
-            echo "manager=npm" >> $GITHUB_ENV
-            echo "command=ci" >> $GITHUB_ENV
-            echo "runner=npx --no-install" >> $GITHUB_ENV
-          else
-            echo "Unable to determine package manager"
-            exit 1
-          fi
-
-      - name: Install dependencies
-        run: |
-          cd $WORKING_DIR
-          ${{ env.runner }} ${{ env.manager }} ${{ env.command }}
+          npm ci  # Uses package-lock.json for faster, consistent installs
 
       - name: Build Project
         run: |
           cd $WORKING_DIR
-          ${{ env.runner }} run build
+          npm run build
+
+      # - name: Run Tests (Optional)
+      #   run: |
+      #     cd $WORKING_DIR
+      #     npm test
 
       # - name: Deploy (Optional)
       #   run: |
