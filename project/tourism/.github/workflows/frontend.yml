@@ -11,16 +11,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Verify package.json exists
+      - name: Verify project files
         run: |
+          echo "Current directory: $(pwd)"
+          ls -la
           if [ ! -f "package.json" ]; then
-            echo "::error::package.json not found!"
+            echo "::error::package.json not found in repository root!"
             exit 1
           fi
-          echo "Found package.json"
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
