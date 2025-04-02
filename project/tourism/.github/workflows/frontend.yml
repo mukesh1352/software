@@ -9,22 +9,18 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./tourism  # Matches your local directory structure
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Verify project structure
+      - name: Debug directory structure
         run: |
           echo "Current directory: $(pwd)"
+          echo "Repository contents:"
           ls -la
-          if [ ! -f "package.json" ]; then
-            echo "::error::package.json not found!"
-            exit 1
-          fi
+          echo "Checking for package files..."
+          ls package.json package-lock.json yarn.lock 2>/dev/null || true
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -33,7 +29,17 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        run: |
+          if [ -f "yarn.lock" ]; then
+            echo "Using yarn"
+            yarn install --frozen-lockfile
+          elif [ -f "package-lock.json" ]; then
+            echo "Using npm"
+            npm ci
+          else
+            echo "::error::No package manager lockfile found!"
+            exit 1
+          fi
 
       - name: Build project
         env:
