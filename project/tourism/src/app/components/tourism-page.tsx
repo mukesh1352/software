@@ -9,6 +9,7 @@ import { Badge } from "../components/ui/badge"
 import { MapPin, Calendar, Info, Compass, Heart, Star, MapPinned, Plane, Utensils, Camera, Users } from "lucide-react"
 import { motion } from "framer-motion"
 import Image from "next/image"
+import { Footer } from "react-day-picker"
 
 // Tourism data for India with expanded locations
 const tourismData = {
@@ -912,12 +913,15 @@ export function TourismPage() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button className="bg-white text-orange-600 hover:bg-gray-100">Plan Your Trip</Button>
-            <Button className="border border-white text-white hover:bg-white/20">Contact a Travel Expert</Button>
+            <Button onClick={() => window.location.href = "/contact"} className="border border-white text-white hover:bg-white/20">
+  Contact a Travel Expert
+</Button>
+
           </div>
         </motion.section>
       </main>
-
-      {/* Footer */}
+{/* 
+      Footer
       <footer className="bg-gray-900 text-white py-12 mt-16">
         <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="md:col-span-1">
@@ -1028,11 +1032,12 @@ export function TourismPage() {
               </div>
             </div>
           </div>
-        </div>
+        </div> */}
+      <Footer>
         <div className="max-w-7xl mx-auto px-4 pt-8 mt-8 border-t border-gray-800 text-center text-gray-400">
           <p>&copy; {new Date().getFullYear()} Incredible India Tourism. All rights reserved.</p>
         </div>
-      </footer>
+      </Footer>
     </div>
   )
 }
