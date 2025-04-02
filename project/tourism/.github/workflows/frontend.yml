@@ -18,17 +18,22 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'  # Caches node_modules for faster builds
+          cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci  # Uses package-lock.json for deterministic installs
+        run: |
+          npm ci
+          npm cache clean --force
 
-      - name: Build
+      - name: Build project
         env:
           NEXT_TELEMETRY_DISABLED: 1
         run: npm run build
 
-      - name: Run Tests
+      - name: Run tests
         env:
           CI: true
         run: npm test
+
+      - name: Lint code
+        run: npm run lint
