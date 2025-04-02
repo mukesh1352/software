@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import { useState } from 'react';
+import { useState, type ComponentProps } from 'react';
 
 export function ImageWithFallback({
   src,
@@ -8,8 +8,7 @@ export function ImageWithFallback({
 }: {
   src: string;
   alt: string;
-  [key: string]: any;
-}) {
+} & Omit<ComponentProps<typeof Image>, 'src' | 'alt'>) {
   const [error, setError] = useState(false);
 
   return (
