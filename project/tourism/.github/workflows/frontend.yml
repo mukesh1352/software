@@ -1,4 +1,4 @@
-name: Frontend CI
+name: Next.js CI/CD
 
 on:
   push:
@@ -10,43 +10,42 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Debug directory structure
-        run: |
-          echo "Current directory: $(pwd)"
-          echo "Repository contents:"
-          ls -la
-          echo "Checking for package files..."
-          ls package.json package-lock.json yarn.lock 2>/dev/null || true
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: |
-          if [ -f "yarn.lock" ]; then
-            echo "Using yarn"
-            yarn install --frozen-lockfile
-          elif [ -f "package-lock.json" ]; then
-            echo "Using npm"
-            npm ci
-          else
-            echo "::error::No package manager lockfile found!"
-            exit 1
-          fi
-
-      - name: Build project
-        env:
-          NEXT_TELEMETRY_DISABLED: 1
-        run: npm run build
-
-      - name: Run tests
-        env:
-          CI: true
-        run: npm test
+    - uses: actions/checkout@v4
+    
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Run tests
+      run: npm test
+      
+    - name: Build
+      run: npm run build
+      
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: next-build-${{ github.sha }}-node-${{ matrix.node-version }}
+        path: .next/
+        if-no-files-found: warn
+        compression-level: 6
+        overwrite: false
+        include-hidden-files: true
+        
+    - name: Cache node modules
+      uses: actions/cache@v4
+      with:
+        path: ~/.npm
+        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-
