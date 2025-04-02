@@ -445,9 +445,9 @@ export function TourismPage() {
             Explore the diverse landscapes, rich culture, and ancient heritage of India
           </motion.p>
           <motion.div initial="hidden" animate="visible" variants={slideUp} className="mt-8">
-            <Button className="bg-orange-600 hover:bg-orange-700 text-white px-6 py-3 text-lg">
+            {/* <Button className="bg-orange-600 hover:bg-orange-700 text-white px-6 py-3 text-lg">
               Start Your Journey
-            </Button>
+            </Button> */}
           </motion.div>
         </div>
         <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
