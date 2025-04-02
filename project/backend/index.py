@@ -5,6 +5,7 @@ import mysql.connector
 from fastapi.middleware.cors import CORSMiddleware
 from mysql.connector import pooling
 import uuid
+import redis
 from typing import Optional
 
 app = FastAPI()
@@ -17,6 +18,22 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Redis connection (Upstash)
+redis_url = "rediss://saved-firefly-54852.upstash.io:6379"
+try:
+    redis_client = redis.Redis.from_url(
+        redis_url,
+        password="AdZEAAIjcDFiNzAyMzE5YjJjZTE0MGRiOWYzMWVkYjE4ZDlmMDNhNnAxMA",
+        decode_responses=True,
+        socket_timeout=5,
+        socket_connect_timeout=5
+    )
+    redis_client.ping()
+    print("Connected to Redis successfully!")
+except redis.exceptions.ConnectionError as e:
+    print(f"Redis connection error: {e}")
+    redis_client = None
 
 # Database connection pool
 db_config = {
@@ -84,8 +101,6 @@ def signup(user: User):
         cursor.close()
         conn.close()
 
-sessions = {}  # Global variable to store sessions
-
 # Login endpoint
 @app.post("/login")
 def login(user: User):
@@ -102,7 +117,10 @@ def login(user: User):
         
         # Create a session
         session_id = str(uuid.uuid4())
-        sessions[session_id] = user.username
+        if redis_client:
+            redis_client.setex(session_id, 3600, user.username)
+        else:
+            print("Skipping Redis session storage due to connection issues")
 
         return {"message": "Login successful", "session_id": session_id, "username": user.username}
     except mysql.connector.Error as e:
