@@ -9,7 +9,7 @@ export default function Footer() {
           <div className="flex space-x-4 mt-4">
             <a href="#" className="text-gray-400 hover:text-white">Privacy Policy</a>
             <a href="#" className="text-gray-400 hover:text-white">Terms of Service</a>
-            <a href="#" className="text-gray-400 hover:text-white">Contact</a>
+            <a href="/contact" className="text-gray-400 hover:text-white">Contact</a>
           </div>
         </div>
       </footer>

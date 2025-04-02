@@ -3,8 +3,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 const AMADEUS_BASE_URL = "https://test.api.amadeus.com/v1";
-const CLIENT_ID = "0NPR1IEBBmUNFfWR254x2KCGJ94R1tEd";
-const CLIENT_SECRET = "PAcdZJQFarJo94dp";
+const CLIENT_ID = "QuQHSR8GsepvCFjDFGi2vzAweFbdfWCC";
+const CLIENT_SECRET = "dUPRAqd7GOrTRyGU";
 
 export default function HotelBooking() {
   const [city, setCity] = useState("");
