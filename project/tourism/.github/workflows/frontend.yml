@@ -18,12 +18,10 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: 'npm'  # This will cache node_modules based on package-lock.json
 
       - name: Install dependencies
-        shell: bash
-        run: |
-          cd $GITHUB_WORKSPACE
-          npm install --no-package-lock
+        run: npm ci  # Using 'npm ci' instead of 'npm install' for more reliable builds
 
       - name: Build
         env:
