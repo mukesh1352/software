@@ -22,21 +22,11 @@ jobs:
           node-version: 18
           cache: 'npm'
 
-      - name: Detect package manager
-        id: detect-package-manager
-        run: |
-          if [ -f "package.json" ]; then
-            echo "manager=npm" >> $GITHUB_ENV
-            echo "command=ci" >> $GITHUB_ENV
-            echo "runner=npx --no-install" >> $GITHUB_ENV
-          else
-            echo "Unable to determine package manager"
-            exit 1
-          fi
-        shell: bash
-
       - name: Install dependencies
         run: npm ci
+        
+      - name: Install Jest
+        run: npm install --save-dev jest
 
       - name: Run tests
         run: npm test
