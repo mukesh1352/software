@@ -1,38 +1,50 @@
-name: CI Pipeline
+name: Build and Deploy
 
 on:
   push:
     branches:
-      - main
+      - main  # Adjust branch name as needed
   pull_request:
     branches:
       - main
 
 jobs:
-  build-and-test:
+  build:
     runs-on: ubuntu-latest
 
     steps:
-      # - name: 📥 Checkout Repository
-      #   uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - name: 🔧 Set Up Node.js
-        uses: actions/setup-node@v3
-        with:
-          # node-version: 18
-          cache: 'npm'
+      - name: Set working directory
+        run: echo "WORKING_DIR=project/tourism" >> $GITHUB_ENV
 
-      # - name: 📂 Verify Repository Structure
-      #   run: ls -la
+      - name: Detect package manager
+        run: |
+          cd $WORKING_DIR
+          if [ -f "yarn.lock" ]; then
+            echo "manager=yarn" >> $GITHUB_ENV
+            echo "command=install" >> $GITHUB_ENV
+            echo "runner=yarn" >> $GITHUB_ENV
+          elif [ -f "package.json" ]; then
+            echo "manager=npm" >> $GITHUB_ENV
+            echo "command=ci" >> $GITHUB_ENV
+            echo "runner=npx --no-install" >> $GITHUB_ENV
+          else
+            echo "Unable to determine package manager"
+            exit 1
+          fi
 
-      - name: 📦 Install Dependencies
-        run: npm install   # Ensures clean install from package-lock.json
+      - name: Install dependencies
+        run: |
+          cd $WORKING_DIR
+          ${{ env.runner }} ${{ env.manager }} ${{ env.command }}
 
-      - name: 🚀 Build Next.js App
-        run: npm run build
+      - name: Build Project
+        run: |
+          cd $WORKING_DIR
+          ${{ env.runner }} run build
 
-      - name: 🧪 Run Tests
-        run: npm test
-
-      # - name: ✅ Lint Check
-      #   run: npm run lint
+      # - name: Deploy (Optional)
+      #   run: |
+      #     echo "Deployment step here"
