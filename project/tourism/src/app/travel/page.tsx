@@ -139,7 +139,7 @@ const TravelPage = () => {
                   </ul>
                 </div>
                 <div className="page-direction-button">
-                  <a href="contact.html">
+                  <a href="/contact">
                     <i className="fa fa-phone" />
                     Contact Us Now
                   </a>
@@ -160,16 +160,17 @@ const TravelPage = () => {
                             <label htmlFor="from">From:</label>
                             <select required name="from" value={formData.from} onChange={handleChange}>
                               <option value="">Select a location...</option>
-                              <option value="Cambodia">Cambodia</option>
-                              <option value="Hong Kong">Hong Kong</option>
-                              <option value="India">India</option>
-                              <option value="Japan">Japan</option>
-                              <option value="Korea">Korea</option>
-                              <option value="Laos">Laos</option>
-                              <option value="Myanmar">Myanmar</option>
-                              <option value="Singapore">Singapore</option>
-                              <option value="Thailand">Thailand</option>
-                              <option value="Vietnam">Vietnam</option>
+                              <option value="Delhi">Delhi</option>
+                              <option value="Mumbai">Mumbai</option>
+                              <option value="Bangalore">Bangalore</option>
+                              <option value="Chennai">Chennai</option>
+                              <option value="Kolkata">Kolkata</option>
+                              <option value="Hyderabad">Hyderabad</option>
+                              <option value="Pune">Pune</option>
+                              <option value="Jaipur">Jaipur</option>
+                              <option value="Ahmedabad">Ahmedabad</option>
+                              <option value="Kochi">Kochi</option>
+                              <option value="Goa">Goa</option>
                             </select>
                           </fieldset>
                         </div>
@@ -178,16 +179,17 @@ const TravelPage = () => {
                             <label htmlFor="to">To:</label>
                             <select required name="to" value={formData.to} onChange={handleChange}>
                               <option value="">Select a location...</option>
-                              <option value="Cambodia">Cambodia</option>
-                              <option value="Hong Kong">Hong Kong</option>
-                              <option value="India">India</option>
-                              <option value="Japan">Japan</option>
-                              <option value="Korea">Korea</option>
-                              <option value="Laos">Laos</option>
-                              <option value="Myanmar">Myanmar</option>
-                              <option value="Singapore">Singapore</option>
-                              <option value="Thailand">Thailand</option>
-                              <option value="Vietnam">Vietnam</option>
+                              <option value="Delhi">Delhi</option>
+                              <option value="Mumbai">Mumbai</option>
+                              <option value="Bangalore">Bangalore</option>
+                              <option value="Chennai">Chennai</option>
+                              <option value="Kolkata">Kolkata</option>
+                              <option value="Hyderabad">Hyderabad</option>
+                              <option value="Pune">Pune</option>
+                              <option value="Jaipur">Jaipur</option>
+                              <option value="Ahmedabad">Ahmedabad</option>
+                              <option value="Kochi">Kochi</option>
+                              <option value = "goa">Goa</option>
                             </select>
                           </fieldset>
                         </div>
@@ -950,31 +952,36 @@ const TravelPage = () => {
             <div className="col-md-4">
               <div className="service-item first-service">
                 <div className="service-icon" />
-                <h4>Easy Tooplate</h4>
+                <h4>Explore the World with Ease</h4>
                 <p>
-                  Donec varius porttitor iaculis. Integer sollicitudin erat et ligula viverra vulputate. In in quam
-                  efficitur, pulvinar justo ut, tempor nunc. Phasellus pharetra quis odio.
-                </p>
+   Traveling opens the door to new experiences, cultures, and unforgettable memories. Whether you’re exploring 
+   breathtaking landscapes, indulging in delicious cuisines, or immersing yourself in local traditions, every journey 
+   brings something unique. Plan your adventure with us and discover the beauty of the world like never before!
+</p>
               </div>
             </div>
             <div className="col-md-4">
               <div className="service-item second-service">
                 <div className="service-icon" />
-                <h4>Unique Ideas</h4>
-                <p>
-                  Cras ligula diam, tristique at aliquam at, fermentum auctor turpis. Proin leo massa, iaculis elementum
-                  massa et, consectetur varius dolor. Fusce sed ipsum sit.
-                </p>
+                <h4>Unique Travel Experiences</h4>
+<p>
+   Escape the ordinary and discover hidden gems across the world! From staying in glass igloos under the Northern 
+   Lights to exploring ancient cave hotels, travel offers endless possibilities. Whether it’s an offbeat adventure, 
+   a cultural immersion, or a serene retreat, let your journey be as unique as you are!
+</p>
+
               </div>
             </div>
             <div className="col-md-4">
               <div className="service-item third-service">
                 <div className="service-icon" />
-                <h4>Best Support</h4>
-                <p>
-                  Fusce leo dui. Mauris et justo eget arcu ultricies porta. Nulla facilisi. Nulla nec risus sit amet
-                  magna hendrerit venenatis. Sed porta tincidunt lectus eget ultrices.
-                </p>
+                <h4>24/7 Travel Assistance</h4>
+<p>
+   Your journey should be stress-free! Our dedicated support team is available 24/7 to assist you with bookings, 
+   itinerary changes, and travel guidance. Whether you need last-minute recommendations or emergency help, we’re 
+   here to ensure a smooth and hassle-free travel experience.
+</p>
+
               </div>
             </div>
           </div>
