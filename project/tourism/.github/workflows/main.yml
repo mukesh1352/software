@@ -1,4 +1,4 @@
-name: Next.js CI (ESLint Ignored)
+name: Next.js CI
 
 on:
   push:
@@ -18,24 +18,18 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
 
-      - name: Clear NPM Cache
-        run: npm cache clean --force
-
-      - name: Configure NPM Registry
+      - name: Install dependencies
         run: |
-          npm config set registry https://registry.npmjs.org/
-          npm config set strict-ssl false
-
-      - name: Install Dependencies
-        run: |
-          npm install --legacy-peer-deps || npm install --force
+          npm install
+          npm install -D @testing-library/jest-dom @testing-library/react jest jest-environment-jsdom
 
       - name: Build
-        run: |
-          export DISABLE_ESLINT_PLUGIN=true
-          npm run build
+        env:
+          NEXT_TELEMETRY_DISABLED: 1
+        run: npm run build
 
       - name: Run Tests
+        env:
+          CI: true
         run: npm test -- --watchAll=false
