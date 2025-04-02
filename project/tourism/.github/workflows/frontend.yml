@@ -3,20 +3,12 @@ name: Frontend CI
 on:
   push:
     branches: [ main ]
-    paths:
-      - 'frontend/**'
   pull_request:
     branches: [ main ]
-    paths:
-      - 'frontend/**'
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
-    defaults:
-      run:
-        working-directory: ./frontend
 
     steps:
       - name: Checkout repository
@@ -30,7 +22,8 @@ jobs:
       - name: Install dependencies
         shell: bash
         run: |
-          npm install --legacy-peer-deps || npm install --force
+          cd $GITHUB_WORKSPACE
+          npm install --no-package-lock
 
       - name: Build
         env:
@@ -40,5 +33,4 @@ jobs:
       - name: Run Tests
         env:
           CI: true
-          NODE_OPTIONS: --max_old_space_size=4096
-        run: npm test -- --passWithNoTests
+        run: npm test
