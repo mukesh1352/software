@@ -1,4 +1,4 @@
-name: CI/CD for Next.js
+name: CI Workflow
 
 on:
   push:
@@ -11,24 +11,33 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout Code
+      - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Setup Node.js
+      - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 18
-          cache: 'npm'
+          cache: 'yarn'
 
-      - name: Install Dependencies
-        run: npm install
+      - name: Install dependencies
+        run: |
+          if [ -f "yarn.lock" ]; then
+            yarn install --frozen-lockfile
+          elif [ -f "package-lock.json" ]; then
+            npm ci
+          else
+            echo "Unable to determine package manager"
+            exit 1
+          fi
 
-      - name: Run Linting
-        run: npm run lint
+      - name: Run tests
+        run: yarn test
 
-      - name: Run Tests
-        run: npm test
+      - name: Lint code
+        run: yarn lint
 
-      - name: Build Project
-        run: npm run build
+      - name: Build project
+        run: yarn build
