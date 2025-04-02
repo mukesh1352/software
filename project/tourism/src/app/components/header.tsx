@@ -37,7 +37,7 @@ export default function Header() {
         <nav className="hidden md:flex space-x-8 text-lg font-medium text-white">
           <Link href="/tourism" className="hover:text-yellow-400 transition-all duration-300">Tourism</Link>
           <Link href="/hotels" className="hover:text-yellow-400 transition-all duration-300">Hotels</Link>
-          <Link href="/travels" className="hover:text-yellow-400 transition-all duration-300">Travels</Link>
+          <Link href="/travel" className="hover:text-yellow-400 transition-all duration-300">Travels</Link>
         </nav>
 
         {username ? (
