@@ -8,6 +8,7 @@ import { Button } from "../components/ui/button"
 import { Badge } from "../components/ui/badge"
 import { MapPin, Calendar, Info, Compass, Heart, Star, MapPinned, Plane, Utensils, Camera, Users } from "lucide-react"
 import { motion } from "framer-motion"
+import Image from "next/image"
 
 // Tourism data for India with expanded locations
 const tourismData = {
@@ -368,18 +369,17 @@ const slideUp = {
   visible: { y: 0, opacity: 1, transition: { duration: 0.5 } },
 }
 
-type LocationKey = keyof typeof tourismData;
+type LocationKey = keyof typeof tourismData
 
 export function TourismPage() {
-  // Change this line to add the type annotation:
   const [selectedLocation, setSelectedLocation] = useState<LocationKey>("Delhi")
   const [selectedAttraction, setSelectedAttraction] = useState(0)
-  const [heroImages, setHeroImages] = useState([
+  const heroImages = [
     "/images/hero/taj-mahal.jpg",
     "/images/hero/kerala-backwaters.jpg",
     "/images/hero/himalayas.jpg",
     "/images/hero/rajasthan-palace.jpg",
-  ])
+  ]
   const [currentHeroImage, setCurrentHeroImage] = useState(0)
 
   // Auto-rotate hero images
@@ -491,7 +491,8 @@ export function TourismPage() {
           <div className="max-w-xs mx-auto">
             <Select
               value={selectedLocation}
-              onValueChange={(value: string) => setSelectedLocation(value as LocationKey)}>
+              onValueChange={(value: string) => setSelectedLocation(value as LocationKey)}
+            >
               <SelectTrigger className="bg-white">
                 <SelectValue placeholder="Select a location" />
               </SelectTrigger>
@@ -528,10 +529,12 @@ export function TourismPage() {
               </CardHeader>
               <CardContent className="p-0">
                 <div className="aspect-video overflow-hidden">
-                  <img
+                  <Image
                     src={tourismData[selectedLocation].image || "/placeholder.svg"}
                     alt={selectedLocation}
                     className="w-full h-full object-cover"
+                    width={500}
+                    height={300}
                   />
                 </div>
                 <div className="p-6">
@@ -639,85 +642,107 @@ export function TourismPage() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="grid gap-4">
               <div className="overflow-hidden rounded-lg">
-                <img
+                <Image
                   src="/images/gallery/taj-mahal.jpg"
                   alt="Taj Mahal"
+                  width={500}
+                  height={300}
                   className="h-full w-full object-cover hover:scale-110 transition-transform duration-500"
                 />
               </div>
               <div className="overflow-hidden rounded-lg">
-                <img
+                <Image
                   src="/images/gallery/kerala-backwaters.jpg"
                   alt="Kerala Backwaters"
+                  width={500}
+                  height={300}
                   className="h-full w-full object-cover hover:scale-110 transition-transform duration-500"
                 />
               </div>
             </div>
             <div className="grid gap-4">
               <div className="overflow-hidden rounded-lg">
-                <img
+                <Image
                   src="/images/gallery/varanasi.jpg"
                   alt="Varanasi Ghats"
+                  width={500}
+                  height={300}
                   className="h-full w-full object-cover hover:scale-110 transition-transform duration-500"
                 />
               </div>
               <div className="overflow-hidden rounded-lg">
-                <img
+                <Image
                   src="/images/gallery/rajasthan-fort.jpg"
                   alt="Rajasthan Fort"
+                  width={500}
+                  height={300}
                   className="h-full w-full object-cover hover:scale-110 transition-transform duration-500"
                 />
               </div>
               <div className="overflow-hidden rounded-lg">
-                <img
+                <Image
                   src="/images/gallery/goa-beaches.jpg"
                   alt="Goa Beaches"
+                  width={500}
+                  height={300}
                   className="h-full w-full object-cover hover:scale-110 transition-transform duration-500"
                 />
               </div>
             </div>
             <div className="grid gap-4">
               <div className="overflow-hidden rounded-lg">
-                <img
+                <Image
                   src="/images/gallery/himalayas.jpg"
                   alt="Himalayan Mountains"
+                  width={500}
+                  height={300}
                   className="h-full w-full object-cover hover:scale-110 transition-transform duration-500"
                 />
               </div>
               <div className="overflow-hidden rounded-lg">
-                <img
+                <Image
                   src="/images/gallery/andaman-islands.jpg"
                   alt="Andaman Islands"
+                  width={500}
+                  height={300}
                   className="h-full w-full object-cover hover:scale-110 transition-transform duration-500"
                 />
               </div>
               <div className="overflow-hidden rounded-lg">
-                <img
+                <Image
                   src="/images/gallery/delhi-red-fort.jpg"
                   alt="Delhi Red Fort"
+                  width={500}
+                  height={300}
                   className="h-full w-full object-cover hover:scale-110 transition-transform duration-500"
                 />
               </div>
             </div>
             <div className="grid gap-4">
               <div className="overflow-hidden rounded-lg">
-                <img
+                <Image
                   src="/images/gallery/mysore-palace.jpg"
                   alt="Mysore Palace"
+                  width={500}
+                  height={300}
                   className="h-full w-full object-cover hover:scale-110 transition-transform duration-500"
                 />
               </div>
               <div className="overflow-hidden rounded-lg">
-                <img
+                <Image
                   src="/images/gallery/rann-of-kutch.jpg"
                   alt="Rann of Kutch"
+                  width={500}
+                  height={300}
                   className="h-full w-full object-cover hover:scale-110 transition-transform duration-500"
                 />
               </div>
               <div className="overflow-hidden rounded-lg">
-                <img
+                <Image
                   src="/images/gallery/sikkim-valley.jpg"
                   alt="Sikkim Valley"
+                  width={500}
+                  height={300}
                   className="h-full w-full object-cover hover:scale-110 transition-transform duration-500"
                 />
               </div>
@@ -754,7 +779,7 @@ export function TourismPage() {
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-muted-foreground italic">"{testimonial.comment}"</p>
+                  <p className="text-sm text-muted-foreground italic">{`"${testimonial.comment}"`}</p>
                 </CardContent>
               </Card>
             ))}
@@ -886,12 +911,8 @@ export function TourismPage() {
             of India.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button className="bg-white text-orange-600 hover:bg-gray-100">
-              Plan Your Trip
-            </Button>
-            <Button className="border border-white text-white hover:bg-white/20">
-              Contact a Travel Expert
-            </Button>
+            <Button className="bg-white text-orange-600 hover:bg-gray-100">Plan Your Trip</Button>
+            <Button className="border border-white text-white hover:bg-white/20">Contact a Travel Expert</Button>
           </div>
         </motion.section>
       </main>
@@ -1009,7 +1030,7 @@ export function TourismPage() {
           </div>
         </div>
         <div className="max-w-7xl mx-auto px-4 pt-8 mt-8 border-t border-gray-800 text-center text-gray-400">
-          <p>© {new Date().getFullYear()} Incredible India Tourism. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} Incredible India Tourism. All rights reserved.</p>
         </div>
       </footer>
     </div>

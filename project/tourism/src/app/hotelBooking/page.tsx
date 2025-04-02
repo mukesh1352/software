@@ -110,7 +110,7 @@ export default function HotelBooking() {
   };
 
   const handleSort = () => {
-    let sortedHotels = [...hotels];
+    const sortedHotels = [...hotels];
 
     // Sort hotels based on selected criteria
     if (selectedSortOptions.includes("alphabetical-asc")) {
