@@ -11,15 +11,32 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
-  
-      - uses: actions/setup-node@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Verify package.json exists
+        run: |
+          if [ ! -f "package.json" ]; then
+            echo "::error::package.json not found!"
+            exit 1
+          fi
+          echo "Found package.json"
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: '20'
           cache: 'npm'
-  
-      - run: npm ci
-  
-      - run: npm run build
-      
-      - run: npm test
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build project
+        env:
+          NEXT_TELEMETRY_DISABLED: 1
+        run: npm run build
+
+      - name: Run tests
+        env:
+          CI: true
+        run: npm test
