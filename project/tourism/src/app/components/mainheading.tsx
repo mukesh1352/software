@@ -4,7 +4,7 @@ export const Heading = () => {
             className="h-80 w-full flex items-center justify-center"
             style={{ backgroundImage: 'url(/rome.jpg)', backgroundSize: 'cover', backgroundPosition: 'center', boxShadow: 'inset 0 0 0 1000px rgba(0,0,0,0.3)' }}
         >
-            <div className="relative w-1/2 max-w-lg">
+            {/* <div className="relative w-1/2 max-w-lg">
                 <input 
                     type="text" 
                     placeholder="Search for destinations..." 
@@ -13,7 +13,7 @@ export const Heading = () => {
                 <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">
                     <i className="fas fa-search"></i>
                 </span>
-            </div>
+            </div> */}
         </div>
     );
 };
