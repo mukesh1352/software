@@ -12,6 +12,10 @@ import random
 from datetime import datetime, timedelta
 import json
 import logging
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -30,14 +34,15 @@ app.add_middleware(
 
 # Configuration
 class Config:
-    REDIS_URL = "rediss://saved-firefly-54852.upstash.io:6379"
-    REDIS_PASSWORD = "AdZEAAIjcDFiNzAyMzE5YjJjZTE0MGRiOWYzMWVkYjE4ZDlmMDNhNnAxMA"
+    REDIS_URL = os.getenv("REDIS_URL")
+    REDIS_PASSWORD = os.getenv("REDIS_PASSWORD")
+
     DB_CONFIG = {
-        "user": "mukesh",
-        "password": "mukesh123",
-        "host": "localhost",
-        "port": 3306,
-        "database": "tourism",
+        "user": os.getenv("DB_USER"),
+        "password": os.getenv("DB_PASSWORD"),
+        "host": os.getenv("DB_HOST"),
+        "port": os.getenv("DB_PORT"),
+        "database": os.getenv("DB_NAME"),
     }
 
 # Database connection pool
