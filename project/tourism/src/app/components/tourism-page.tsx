@@ -912,7 +912,7 @@ export function TourismPage() {
             of India.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button className="bg-white text-orange-600 hover:bg-gray-100">Plan Your Trip</Button>
+            <Button onClick={()=>window.location.href = "/plan-your-trip"} className="bg-white text-orange-600 hover:bg-gray-100">Plan Your Trip</Button>
             <Button onClick={() => window.location.href = "/contact"} className="border border-white text-white hover:bg-white/20">
   Contact a Travel Expert
 </Button>
